@@ -305,7 +305,7 @@
   </div>
   <div class="nav-item" id="navExtra" onclick="switchPage('extra')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
-    <span class="nav-label">Extraorçamentário</span>
+    <span class="nav-label">Nova Dist. de Custeio</span>
   </div>
   <div class="nav-item" id="navIndicadores" onclick="switchPage('indicadores')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
@@ -356,10 +356,16 @@
     <div class="topbar">
       <div class="topbar-left">
         <h1>Recursos Extraorçamentários às Unidades</h1>
-        <p>Encaminhamento de recursos extraorçamentários por unidade, com as propostas em análise pela Reitoria. Reitoria não incluída nesta tela.</p>
+        <p>Encaminhamento de recursos extraorçamentários por unidade, com as propostas em análise pela Reitoria. Reitoria não incluída nesta tela. Lida diretamente da planilha "Distribuição de recursos".</p>
+      </div>
+      <div class="topbar-right">
+        <div class="update-pill" id="updatePillExtra">Carregando…</div>
+        <button class="refresh-btn" id="refreshBtnExtra" onclick="manualRefresh()"><span class="ic">⟳</span> Atualizar</button>
       </div>
     </div>
-    <div class="content" id="contentExtra"></div>
+    <div class="content" id="contentExtra">
+      <div class="state-box"><div class="spinner"></div><h3>Carregando dados da planilha…</h3></div>
+    </div>
   </div>
 
   <!-- ============ TELA 4 · INDICADORES RFEPCT ============ -->
@@ -387,6 +393,8 @@
 /* ================= Configuração da fonte de dados ================= */
 const SHEET_ID = '1B78UxqnO9QY0wZTuIf41dVhnVTmTd_UMz3zdSnVfFjI';
 const GID = '814128660';
+const EXTRA_SHEET_ID = '1glxot4hifQGyDytwTmxaN1_vdZNEUdEynS0Gkok2FPo'; // "Distribuição de recursos"
+const EXTRA_GID = '0';
 const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutos
 const PIVOT_HEAD_ROW_H = 36; // px — altura fixa de cada linha do cabeçalho da tabela pivô (ver .pivot-th no CSS)
 const EXTRA_HEAD_ROW_H = 40; // px — altura fixa de cada linha do cabeçalho da tabela de Extraorçamentário
@@ -394,31 +402,8 @@ const EXTRA_HEAD_ROW_H = 40; // px — altura fixa de cada linha do cabeçalho d
 // para mostrar toda Origem possível (mesmo sem nenhuma despesa lançada ainda).
 const ORIGENS_VALIDAS = ['LOA', 'PAC', 'RP2', 'RP6', 'RP7', 'RTC'];
 
-/* ================= Dados estáticos: Recursos Extraorçamentários ================= */
-// Fonte: dados fornecidos diretamente (não lidos da planilha ao vivo). Reitoria excluída por pedido.
-const EXTRA_ORC_DATA = [
-  {unidade:"Avançado Areia", v2624:0, distJan:0, distMaio:0, proposta2:30970.28, extraP2:30970.28, p4Recomp:0, p4Todos:22842.84, extraP4:22842.84},
-  {unidade:"Avançado JP Zona Sul", v2624:487940.49, distJan:195176.2, distMaio:386697.66, proposta2:0, extraP2:581873.86, p4Recomp:0, p4Todos:2902.02, extraP4:584775.88},
-  {unidade:"Avançado Soledade", v2624:342094.88, distJan:222361.67, distMaio:100000.0, proposta2:33935.72, extraP2:356297.39, p4Recomp:19733.21, p4Todos:3648.45, extraP4:345743.33},
-  {unidade:"Cabedelo", v2624:0, distJan:0, distMaio:0, proposta2:60289.67, extraP2:60289.67, p4Recomp:0, p4Todos:62261.07, extraP4:62261.07},
-  {unidade:"Cabedelo Centro", v2624:109383.56, distJan:48128.77, distMaio:0, proposta2:61254.79, extraP2:109383.56, p4Recomp:61254.79, p4Todos:14997.2, extraP4:124380.76},
-  {unidade:"Cajazeiras", v2624:0, distJan:0, distMaio:0, proposta2:48814.36, extraP2:48814.36, p4Recomp:0, p4Todos:50314.99, extraP4:50314.99},
-  {unidade:"Campina Grande", v2624:0, distJan:0, distMaio:0, proposta2:98849.29, extraP2:98849.29, p4Recomp:0, p4Todos:102253.48, extraP4:102253.48},
-  {unidade:"Catolé do Rocha", v2624:0, distJan:0, distMaio:0, proposta2:66195.18, extraP2:66195.18, p4Recomp:0, p4Todos:46406.21, extraP4:46406.21},
-  {unidade:"Esperança", v2624:881258.84, distJan:352503.54, distMaio:0, proposta2:99809.67, extraP2:452313.21, p4Recomp:68110.14, p4Todos:19263.19, extraP4:439876.87},
-  {unidade:"Guarabira", v2624:469702.53, distJan:140910.76, distMaio:500000.0, proposta2:0, extraP2:640910.76, p4Recomp:0, p4Todos:11362.14, extraP4:652272.9},
-  {unidade:"Itabaiana", v2624:366511.83, distJan:219907.1, distMaio:0, proposta2:146604.73, extraP2:366511.83, p4Recomp:146604.73, p4Todos:28233.11, extraP4:394744.94},
-  {unidade:"Itaporanga", v2624:299717.73, distJan:134872.98, distMaio:0, proposta2:132742.03, extraP2:267615.01, p4Recomp:91081.88, p4Todos:24341.81, extraP4:250296.67},
-  {unidade:"João Pessoa", v2624:0, distJan:0, distMaio:0, proposta2:136745.57, extraP2:136745.57, p4Recomp:0, p4Todos:139804.07, extraP4:139804.07},
-  {unidade:"Monteiro", v2624:318640.38, distJan:151354.18, distMaio:0, proposta2:167286.2, extraP2:318640.38, p4Recomp:167286.2, p4Todos:35630.71, extraP4:354271.09},
-  {unidade:"Patos", v2624:0, distJan:0, distMaio:0, proposta2:129106.93, extraP2:129106.93, p4Recomp:0, p4Todos:87653.05, extraP4:87653.05},
-  {unidade:"Pedras de Fogo", v2624:0, distJan:0, distMaio:0, proposta2:30045.83, extraP2:30045.83, p4Recomp:0, p4Todos:21851.9, extraP4:21851.9},
-  {unidade:"Picuí", v2624:10543.18, distJan:0, distMaio:240000.0, proposta2:0, extraP2:240000.0, p4Recomp:0, p4Todos:30509.81, extraP4:270509.81},
-  {unidade:"Princesa Isabel", v2624:548967.84, distJan:315656.51, distMaio:0, proposta2:233311.33, extraP2:548967.84, p4Recomp:233311.33, p4Todos:31868.98, extraP4:580836.82},
-  {unidade:"Santa Luzia", v2624:793988.15, distJan:317595.26, distMaio:200000.0, proposta2:55467.72, extraP2:573062.98, p4Recomp:37851.17, p4Todos:10705.22, extraP4:566151.65},
-  {unidade:"Santa Rita", v2624:536619.81, distJan:321971.89, distMaio:0, proposta2:179100.57, extraP2:501072.46, p4Recomp:173848.44, p4Todos:23914.92, extraP4:519735.25},
-  {unidade:"Sousa", v2624:0, distJan:0, distMaio:0, proposta2:27489.56, extraP2:27489.56, p4Recomp:0, p4Todos:29234.84, extraP4:29234.84},
-];
+let EXTRA_ORC_DATA = [];
+let extraLastError = null;
 
 /* ================= Dados estáticos: Indicadores RFEPCT / PNP ================= */
 // Transcrito de uma imagem enviada pelo usuário (valores e cores lidos visualmente) — vale
@@ -470,7 +455,8 @@ function fmtBRLCell(v){
  * que não passa pela checagem de CORS — é a forma padrão de ler uma planilha
  * pública direto do navegador sem backend.
  */
-function fetchGvizTable(){
+function fetchGvizTable(sheetId, gid, headersCount){
+  headersCount = headersCount === undefined ? 1 : headersCount;
   return new Promise((resolve, reject) => {
     const cbName = 'gvizCb_' + Math.random().toString(36).slice(2);
     const timeoutId = setTimeout(() => {
@@ -490,7 +476,7 @@ function fetchGvizTable(){
       resolve(resp.table);
     };
 
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&headers=1&tqx=out:json;responseHandler:${cbName}`;
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gid}&headers=${headersCount}&tqx=out:json;responseHandler:${cbName}`;
     const script = document.createElement('script');
     script.src = url;
     script.onerror = () => { cleanup(); reject(new Error('Não foi possível carregar os dados da planilha. Confirme se ela está compartilhada como "Qualquer pessoa com o link pode visualizar".')); };
@@ -515,7 +501,7 @@ function cellNumber(row, i){
 
 /* ================= Carregamento dos dados ================= */
 async function loadData(){
-  const table = await fetchGvizTable();
+  const table = await fetchGvizTable(SHEET_ID, GID, 1);
   if(!table.cols || !table.rows) throw new Error('A planilha foi lida, mas não retornou colunas/linhas.');
 
   const header = table.cols.map(c => (c.label || '').trim());
@@ -575,7 +561,89 @@ async function refreshData(isManual){
   }
 }
 
-function manualRefresh(){ refreshData(true); }
+/*
+ * Planilha "Distribuição de recursos": cabeçalho ocupa 2 linhas (a 1ª só tem o
+ * rótulo mesclado "PROPOSTA"), então pedimos headers=2 para o gviz pular as
+ * duas e entregar os dados a partir da 3ª linha (Reitoria, que é filtrada fora
+ * a seguir). Colunas fixas por posição (A a G), já que os rótulos da 1ª linha
+ * de cabeçalho não servem de referência (célula mesclada).
+ */
+async function loadExtraData(){
+  const table = await fetchGvizTable(EXTRA_SHEET_ID, EXTRA_GID, 2);
+  if(!table.rows) throw new Error('A planilha foi lida, mas não retornou linhas de dados.');
+
+  const dados = [];
+  table.rows.forEach(row => {
+    if(!row || !row.c) return;
+    const unidade = cellText(row, 0);
+    if(!unidade) return; // ignora linha de totais / linhas vazias
+    if(unidade.trim().toUpperCase() === 'REITORIA') return; // Reitoria fora desta tela, por pedido
+
+    dados.push({
+      unidade: toTitleCasePt(unidade),
+      v2624: cellNumber(row, 1),
+      distJan: cellNumber(row, 2),
+      distMaio: cellNumber(row, 3),
+      p4Recomp: cellNumber(row, 4),
+      p4Todos: cellNumber(row, 5),
+      extraP4: cellNumber(row, 6),
+    });
+  });
+  return dados;
+}
+
+// A planilha traz os nomes em CAIXA ALTA; convertendo para Título para bater com o
+// padrão visual do restante do painel.
+function toTitleCasePt(s){
+  const minusculas = ['de','da','do','das','dos','e'];
+  const siglas = ['jp']; // mantém sigla em maiúsculas (ex.: "JP" em "Avançado JP Zona Sul")
+  return s.trim().toLowerCase().split(' ').map((w,i) => {
+    if(siglas.includes(w)) return w.toUpperCase();
+    if(i > 0 && minusculas.includes(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+
+async function refreshExtraData(){
+  const btn = document.getElementById('refreshBtnExtra');
+  if(btn) btn.classList.add('spinning');
+  try{
+    EXTRA_ORC_DATA = await loadExtraData();
+    extraLastError = null;
+  } catch(e){
+    extraLastError = e.message || 'Erro ao carregar a planilha.';
+  }
+  if(btn) btn.classList.remove('spinning');
+  updateExtraPill();
+  if(extraLastError){
+    document.getElementById('contentExtra').innerHTML = `
+      <div class="state-box">
+        <h3>Não foi possível carregar os dados</h3>
+        <p>${extraLastError}</p>
+        <p style="margin-top:14px;">Confirme se a planilha está compartilhada como "Qualquer pessoa com o link pode visualizar" e clique em Atualizar.</p>
+      </div>`;
+  } else {
+    renderExtraTable();
+  }
+}
+
+function updateExtraPill(){
+  const p = document.getElementById('updatePillExtra');
+  if(!p) return;
+  if(extraLastError){
+    p.textContent = 'Falha ao atualizar';
+    p.classList.add('err');
+  } else {
+    const hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    p.textContent = `Atualizado às ${hora}`;
+    p.classList.remove('err');
+  }
+}
+
+function manualRefresh(){
+  refreshData(true);
+  refreshExtraData();
+}
 
 function updatePills(){
   const now = new Date();
@@ -965,7 +1033,7 @@ document.addEventListener('keydown', (e) => {
 
 /* ================= Tela 3 · Extraorçamentário ================= */
 function renderExtraTable(){
-  const cols = ['v2624','distJan','distMaio','p4Recomp','p4Todos','extraP4'];
+  const cols = ['v2624','distJan','p4Recomp','p4Todos'];
   const rows = EXTRA_ORC_DATA.map(u => `
     <tr>
       <td>${u.unidade}</td>
@@ -978,16 +1046,14 @@ function renderExtraTable(){
       <table class="extra-table">
         <thead>
           <tr>
-            <th rowspan="2" style="top:0">Unidade</th>
-            <th rowspan="2" class="num th-center" style="top:0">2026 – 2024</th>
-            <th rowspan="2" class="num th-center" style="top:0">Dist. em Janeiro</th>
-            <th rowspan="2" class="num th-center" style="top:0">Dist. em Maio</th>
-            <th colspan="2" class="th-center proposta-group" style="top:0">Proposta</th>
-            <th rowspan="2" class="num th-center" style="top:0">Total</th>
+            <th rowspan="2" style="top:0">UNIDADE / VALOR</th>
+            <th rowspan="2" class="num th-center" style="top:0">2026 - 2024</th>
+            <th rowspan="2" class="num th-center" style="top:0">DIST. EM JANEIRO</th>
+            <th colspan="2" class="th-center proposta-group" style="top:0">PROPOSTA</th>
           </tr>
           <tr>
-            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">Unidades de Recomp.</th>
-            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">Todas as Unidades</th>
+            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">UNIDADES DE RECOMP.</th>
+            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">TODAS AS UNIDADES</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -1002,27 +1068,23 @@ function renderExtraTable(){
     <div class="notes-panel">
       <h3>Sobre as colunas</h3>
       <dl class="notes-dl">
-        <dt>2026 – 2024</dt>
+        <dt>2026 - 2024</dt>
         <dd>Diferença entre o orçamento previsto para 2026 e o de 2024. Valores definidos pelo governo federal: desde 2025 a distribuição orçamentária da Rede Federal usa a Matriz de Distribuição Orçamentária da SETEC/MEC — metodologia já vigente desde a Portaria MEC nº 646/2022, atualizada pela Portaria MEC nº 243, de 10/03/2026.</dd>
-        <dt>Dist. em Janeiro</dt>
+        <dt>DIST. EM JANEIRO</dt>
         <dd>Recursos distribuídos de forma extraorçamentária, a partir de recursos recebidos via índices de qualidade. <em>Terminologia a confirmar</em> — não localizei o texto da Portaria nº 243/2026 para validar esse termo; busquei na web e não encontrei a portaria com esse número/data.</dd>
-        <dt>Dist. em Maio</dt>
-        <dd>Recursos oriundos da LOA, especificamente de Resultado Primário — despesas primárias discricionárias (gastos não obrigatórios).</dd>
-        <dt>Unidades de Recomp. (Proposta)</dt>
+        <dt>UNIDADES DE RECOMP. (Proposta)</dt>
         <dd>Proposta em análise pela Reitoria, da ordem de R$ 1.000.000,00, para as unidades que tiveram redução orçamentária em relação a 2024 — baseada na matriz orçamentária, cujo principal parâmetro é a quantidade de matrículas da unidade.</dd>
-        <dt>Todas as Unidades (Proposta)</dt>
+        <dt>TODAS AS UNIDADES (Proposta)</dt>
         <dd>Proposta em análise pela Reitoria, no valor total de R$ 800.000,00, distribuída a todas as unidades (não só as com déficit orçamentário).</dd>
-        <dt>Total</dt>
-        <dd>A soma que bate com os valores informados é Dist. em Janeiro + Dist. em Maio + Unidades de Recomp. + Todas as Unidades — a descrição original citava só três dessas parcelas (sem a Dist. em Janeiro), então sinalizo a diferença para conferência.</dd>
       </dl>
-      <p class="notes-footer">Todos os valores das propostas em análise pela Reitoria são baseados nos mesmos índices/parâmetros qualitativos já usados pela matriz orçamentária. Reitoria não incluída nesta tela, a pedido. Dados estáticos (não lidos ao vivo de planilha).</p>
+      <p class="notes-footer">Colunas "DIST. EM MAIO" e "TOTAL" da planilha original não aparecem aqui — esses valores já são identificados nas telas de Despesas (Totais/Detalhamento). Todos os valores das propostas em análise pela Reitoria são baseados nos mesmos índices/parâmetros qualitativos já usados pela matriz orçamentária. Reitoria não incluída nesta tela, a pedido.</p>
     </div>`;
   document.getElementById('contentExtra').innerHTML = html;
 }
 
 /* ================= Tela 4 · Indicadores RFEPCT / PNP ================= */
 function rfepctCell(cell){
-  if(!cell) return `<td class="num rfepct-cell">—</td>`;
+  if(!cell) return `<td class="num rfepct-cell rfepct-red">0,00%</td>`;
   return `<td class="num rfepct-cell rfepct-${cell.c}">${cell.v}</td>`;
 }
 
@@ -1068,7 +1130,6 @@ function renderIndicadoresTable(){
     </div>
     <div class="notes-panel">
       <p>Percentuais que orientaram a composição orçamentária das unidades, tanto na projeção da PLOA quanto na identificação dos valores das propostas em análise pela Reitoria. A linha "RFEPCT (referência)" é o valor médio/base da rede, usado como comparação para as unidades abaixo.</p>
-      <p class="notes-footer">Dados transcritos de uma imagem enviada (valores e cores lidos visualmente, não de planilha ou fonte em texto) — vale a pena conferir contra a fonte original antes de uso formal. Células em branco indicam indicador não aplicável/sem valor para aquela unidade.</p>
     </div>`;
   document.getElementById('contentIndicadores').innerHTML = html;
 }
@@ -1099,8 +1160,8 @@ updateCollapseIcon();
 
 /* ================= Inicialização ================= */
 refreshData(false);
-setInterval(() => refreshData(false), AUTO_REFRESH_MS);
-renderExtraTable();
+refreshExtraData();
+setInterval(() => { refreshData(false); refreshExtraData(); }, AUTO_REFRESH_MS);
 renderIndicadoresTable();
 switchPage('totais');
 </script>
