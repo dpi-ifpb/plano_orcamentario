@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPI · Registro de Despesas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --c1:#2A1458;
+    --c1-soft:#3A1E72;
+    --c2:#8E1774;
+    --c3:#E8988A;
+    --c4:#FFEAD8;
+    --bg:#FBF7F4;
+    --surface:#FFFFFF;
+    --border:#EDE3DC;
+    --ink:#2A2130;
+    --ink-soft:#7A6E78;
+    --sidebar-w:280px;
+    --sidebar-w-collapsed:64px;
+    --radius:14px;
+    --grad: linear-gradient(120deg, var(--c2), var(--c3));
+    --good:#1E8E5A;
+    --good-bg:#E7F5EE;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter', system-ui, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    display:flex;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.brand,.nav-label,.kpi-value{font-family:'Sora','Inter',sans-serif;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:var(--sidebar-w); flex-shrink:0;
+    background:linear-gradient(180deg, var(--c1) 0%, #1D0E40 100%);
+    color:#EDE6F5; display:flex; flex-direction:column;
+    padding:16px 14px; transition:width .22s ease; position:relative; z-index:5;
+  }
+  .sidebar.collapsed{width:var(--sidebar-w-collapsed); padding:16px 10px;}
+  .brand{padding:2px 8px 22px 8px; overflow:hidden;}
+  .brand-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .sidebar.collapsed .brand-top{justify-content:center;}
+  .brand-text{font-weight:400; font-size:16px; letter-spacing:.2px; white-space:nowrap;}
+  .brand-text strong{font-weight:700;}
+  .brand-sub{font-weight:400; font-size:10.5px; color:#C7B8DE; letter-spacing:.4px; text-transform:uppercase; margin-top:5px; white-space:nowrap; overflow:hidden;}
+
+  .collapse-btn{
+    width:30px; height:30px; border-radius:8px; flex-shrink:0;
+    background:transparent; border:none; color:#C7B8DE; cursor:pointer; padding:0; font:inherit;
+    display:flex; align-items:center; justify-content:center; transition:background .15s ease, color .15s ease;
+  }
+  .collapse-btn:hover{background:rgba(255,255,255,.09); color:#fff;}
+  .collapse-btn svg{width:18px; height:18px;}
+
+  .sidebar.collapsed .brand-text,
+  .sidebar.collapsed .brand-sub,
+  .sidebar.collapsed .nav-label{display:none;}
+
+  .nav-item{
+    display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:10px; cursor:pointer;
+    color:#D9CFEA; font-size:13.5px; font-weight:400; white-space:nowrap; overflow:hidden;
+    margin-bottom:2px; transition:background .15s ease, color .15s ease;
+  }
+  .nav-item svg{width:16px; height:16px; flex-shrink:0;}
+  .sidebar.collapsed .nav-item{justify-content:center; padding:9px 0;}
+  .nav-item:hover{background:rgba(255,255,255,.07); color:#fff;}
+  .nav-item.active{background:rgba(255,255,255,.12); color:#fff;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow-y:auto;}
+  .topbar{display:flex; align-items:flex-start; justify-content:space-between; padding:26px 36px 10px; gap:20px; flex-wrap:wrap;}
+  .topbar-left .eyebrow{font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--c2);}
+  .topbar h1{font-size:22px; font-weight:600; margin-top:4px;}
+  .topbar p{font-size:13px; color:var(--ink-soft); margin-top:5px; max-width:640px; line-height:1.5;}
+  .topbar-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .update-pill{
+    font-size:11.5px; color:var(--c2); background:#FBEAF6; border:1px solid #F2D3EC;
+    padding:6px 12px; border-radius:20px; font-weight:600; white-space:nowrap;
+  }
+  .update-pill.err{color:#C0392B; background:#FBEAEA; border-color:#F2D3D3;}
+  .refresh-btn{
+    font-family:'Inter'; font-size:12.5px; font-weight:600; color:#fff; background:var(--c1);
+    border:1px solid var(--c1); border-radius:20px; padding:8px 14px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .refresh-btn:hover{background:var(--c1-soft); border-color:var(--c1-soft);}
+  .refresh-btn.spinning .ic{display:inline-block; animation:spin .8s linear infinite;}
+  @keyframes spin{from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
+
+  .content{padding:14px 36px 48px;}
+
+  /* KPI cards */
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-bottom:22px;}
+  .kpi-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:17px 19px; position:relative;
+  }
+  .kpi-label{font-size:11.5px; color:var(--ink-soft); font-weight:500; text-transform:uppercase; letter-spacing:.4px;}
+  .kpi-value{font-size:24px; font-weight:600; margin-top:7px; color:var(--c1);}
+  .kpi-sub{font-size:12px; color:var(--ink-soft); margin-top:5px;}
+
+  /* Panels */
+  .section-label{
+    font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;
+    color:var(--ink-soft); margin:26px 2px 10px;
+  }
+  .section-label:first-of-type{margin-top:0;}
+  .panel{background:var(--surface); border:none; border-radius:0;}
+  .panel + .panel{margin-top:14px;}
+  .panel-pad{padding:24px 26px;}
+
+  /* Table */
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  thead th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px;
+    color:#EDE6F5; font-weight:600; padding:12px 26px;
+    background:var(--c1); position:sticky; top:0; z-index:5;
+  }
+  thead th.num, tbody td.num{text-align:right;}
+  thead th.th-center{text-align:center;}
+  .extra-table thead th{height:40px; box-sizing:border-box; vertical-align:middle;}
+  .extra-table .proposta-group{background:#5B3B99;}
+  tbody td{padding:13px 26px; color:var(--ink);}
+  tbody tr:nth-child(even){background:#FAF6F2;}
+  tbody tr:hover{background:#F5ECE3;}
+  td.num, th.num{font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .muted{color:var(--ink-soft);}
+  tfoot td{
+    padding:13px 26px; font-weight:600; background:#EAD9C4; color:var(--c1);
+  }
+
+  /* Valor: símbolo à esquerda, número alinhado à direita */
+  .cur-cell{display:flex; align-items:baseline; justify-content:space-between; gap:8px; width:100%;}
+  .cur-cell .cur-sym{color:var(--ink-soft); font-weight:600; font-size:.92em;}
+  tfoot .cur-cell .cur-sym, thead .cur-cell .cur-sym{color:inherit; opacity:.7;}
+
+  .badge{
+    display:inline-block; font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px;
+    background:#F0E7E0; color:var(--c1); white-space:nowrap;
+  }
+  .badge.origem-rp2{background:#F0E7FA; color:var(--c1-soft);}
+  .badge.origem-rtc{background:#FBEAF6; color:var(--c2);}
+  .badge.origem-outra{background:#F0E7E0; color:var(--ink-soft);}
+
+  .tipo-tag{
+    display:inline-block; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.3px;
+    padding:2px 7px; border-radius:20px; white-space:nowrap;
+  }
+  .tipo-tag.tipo-custeio{background:rgba(58,30,114,.12); color:var(--c1-soft);}
+  .tipo-tag.tipo-investimento{background:rgba(21,128,61,.14); color:#15803D;}
+
+  .sit-tag{
+    display:inline-block; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.3px;
+    padding:2px 7px; border-radius:20px; white-space:nowrap;
+  }
+  .sit-tag.sit-atendida{background:rgba(30,142,90,.14); color:#1E8E5A;}
+  .sit-tag.sit-comprometida{background:rgba(37,99,235,.13); color:#2563EB;}
+  .sit-tag.sit-prevista{background:rgba(202,138,4,.15); color:#CA8A04;}
+  .sit-tag.sit-outra{background:#F0E7E0; color:var(--ink-soft);}
+
+  /* Filter bar */
+  .filter-bar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:18px;
+  }
+  .filter-field{display:flex; flex-direction:column; gap:5px; min-width:150px;}
+  .filter-field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); font-weight:500;}
+  .filter-field input, .filter-field select{
+    font-family:'Inter'; font-size:12.5px; color:var(--ink); background:var(--surface);
+    border:1px solid var(--border); border-radius:9px; padding:8px 10px; outline:none;
+  }
+  .filter-field input:focus, .filter-field select:focus{border-color:var(--c2);}
+  .filter-clear{
+    font-family:'Inter'; font-size:12.5px; font-weight:600; color:#fff; background:var(--c2);
+    border:1px solid var(--c2); border-radius:9px; padding:8px 14px; cursor:pointer; white-space:nowrap;
+  }
+  .filter-clear:hover{background:#75125F; border-color:#75125F;}
+  .result-count{font-size:12px; color:var(--ink-soft); margin-bottom:12px;}
+
+  /* Loading / error states */
+  .state-box{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:70px 40px; color:var(--ink-soft);
+  }
+  .state-box h3{font-size:15px; color:var(--ink); margin-bottom:8px;}
+  .state-box p{font-size:12.5px; max-width:460px; line-height:1.6;}
+  .spinner{
+    width:26px; height:26px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--c2);
+    animation:spin .8s linear infinite; margin-bottom:16px;
+  }
+
+  .desc-cell{max-width:260px;}
+
+  /* Tabela pivô (Totais) */
+  .pivot-wrap{overflow-x:auto;}
+  .pivot-table{border-collapse:collapse; font-size:12.5px; white-space:nowrap;}
+  .pivot-table th, .pivot-table td{border:none; padding:9px 14px;}
+  .pivot-th{text-align:center; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; font-weight:600; color:#EDE6F5; background:var(--c1); position:sticky; z-index:5; height:36px; box-sizing:border-box; vertical-align:middle;}
+  .pivot-th.group-origem{background:#5B3B99; font-size:11.5px;}
+  .pivot-th.group-situacao{background:#41267E;}
+  .pivot-table thead th.num{text-align:center;}
+  .pivot-table tbody td, .pivot-table tfoot td{text-align:right; font-variant-numeric:tabular-nums;}
+  .pivot-unit-col{
+    text-align:left !important; font-weight:600; position:sticky; left:0; background:var(--surface);
+    z-index:2; width:190px; min-width:190px; max-width:190px; overflow:hidden; text-overflow:ellipsis;
+  }
+  .pivot-total-col{
+    position:sticky; left:190px; font-weight:600; background:var(--surface);
+    z-index:2; width:150px; min-width:150px; max-width:150px;
+  }
+  .pivot-val{width:150px; min-width:150px; max-width:150px;}
+  thead .pivot-unit-col{z-index:7; background:var(--c1); text-align:left !important;}
+  thead .pivot-total-col{z-index:7; background:var(--c1);}
+  tfoot .pivot-unit-col{background:#EAD9C4; color:var(--c1); font-weight:600;}
+  tfoot .pivot-total-col{background:#EAD9C4; color:var(--c1); font-weight:600;}
+  .pivot-table tfoot td{background:#EAD9C4; color:var(--c1); font-weight:600;}
+  .pivot-table tbody tr:nth-child(even) td{background:#FAF6F2;}
+  .pivot-table tbody tr:hover td{background:#F5ECE3;}
+
+  @media (max-width:900px){
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* Notas / legenda (telas Extraorçamentário e Indicadores) */
+  .notes-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:20px 24px; margin-top:16px;
+  }
+  .notes-panel h3{font-size:13px; font-weight:600; color:var(--c1); margin-bottom:10px;}
+  .notes-panel > p{font-size:13px; color:var(--ink); line-height:1.6;}
+  .notes-dl dt{font-size:12.5px; font-weight:600; color:var(--c2); margin:14px 0 3px;}
+  .notes-dl dt:first-child{margin-top:0;}
+  .notes-dl dd{font-size:13px; color:var(--ink); line-height:1.6; margin:0;}
+  .notes-footer{margin-top:16px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--ink-soft);}
+
+  /* Tabela de indicadores RFEPCT / PNP */
+  .rfepct-table{border-collapse:collapse; font-size:13px; width:100%;}
+  .rfepct-table th, .rfepct-table td{padding:10px 18px;}
+  .rfepct-table tbody td.num{text-align:center;}
+  .pnp-group{background:#5B3B99 !important; text-align:center;}
+  .rfepct-baseline td{background:#E4D6F0; color:var(--c1); font-weight:600;}
+  .rfepct-cell{color:var(--ink-soft);}
+  .rfepct-cell.rfepct-red{background:#F4CCCC; color:#CC0000; font-weight:600;}
+  .rfepct-cell.rfepct-green{background:#D9EAD3; color:#38761D; font-weight:600;}
+  .rfepct-cell.rfepct-blue{background:#C9DAF8; color:#1155CC; font-weight:600;}
+  .rfepct-cell.rfepct-orange{background:#FCE5CD; color:#B45F06; font-weight:600;}
+  .rfepct-cell.rfepct-yellow{background:#FFF2CC; color:#BF9000; font-weight:600;}
+
+  /* Modal de detalhe (Descrição da despesa) */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(42,20,88,.45); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:0 24px 60px rgba(42,20,88,.28); max-width:540px; width:100%;
+    padding:28px 30px; position:relative; max-height:85vh; overflow-y:auto;
+  }
+  .modal-close{
+    position:absolute; top:16px; right:18px; font-family:'Inter'; font-weight:600;
+    background:var(--c1); border:1px solid var(--c1); border-radius:6px;
+    font-size:12px; padding:5px 12px; cursor:pointer; color:#fff;
+  }
+  .modal-close:hover{background:var(--c1-soft); border-color:var(--c1-soft);}
+  .modal-dl{margin:0; padding-right:80px;}
+  .modal-dl dt{
+    font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.4px;
+    color:var(--c2); margin:16px 0 4px;
+  }
+  .modal-dl dt:first-child{margin-top:0;}
+  .modal-dl dd{margin:0; font-size:14.5px; color:var(--ink); line-height:1.55;}
+  .desc-link{
+    color:var(--c2); font-weight:600; cursor:pointer; text-decoration:underline;
+    text-decoration-color:transparent; transition:text-decoration-color .15s ease;
+  }
+  .desc-link:hover{text-decoration-color:var(--c2);}
+</style>
+</head>
+<body>
+
+<div class="sidebar collapsed" id="sidebar">
+  <div class="brand">
+    <div class="brand-top">
+      <div class="brand-text"><strong>DPI</strong> · <strong>IFPB</strong></div>
+      <button type="button" class="collapse-btn" id="collapseBtn"></button>
+    </div>
+    <div class="brand-sub">Registro de Despesas</div>
+  </div>
+
+  <div class="nav-item active" id="navTotais" onclick="switchPage('totais')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+    <span class="nav-label">Totais</span>
+  </div>
+  <div class="nav-item" id="navDetalhe" onclick="switchPage('detalhe')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    <span class="nav-label">Detalhamento</span>
+  </div>
+  <div class="nav-item" id="navExtra" onclick="switchPage('extra')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+    <span class="nav-label">Extraorçamentário</span>
+  </div>
+  <div class="nav-item" id="navIndicadores" onclick="switchPage('indicadores')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+    <span class="nav-label">Indicadores</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ============ TELA 1 · TOTAIS ============ -->
+  <div id="page-totais">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Totais de Despesas</h1>
+        <p>Visão consolidada do registro de despesas, lida diretamente da planilha "Registro e acompanhamento de despesas".</p>
+      </div>
+      <div class="topbar-right">
+        <div class="update-pill" id="updatePillTotais">Carregando…</div>
+        <button class="refresh-btn" id="refreshBtnTotais" onclick="manualRefresh()"><span class="ic">⟳</span> Atualizar</button>
+      </div>
+    </div>
+
+    <div class="content" id="contentTotais">
+      <div class="state-box"><div class="spinner"></div><h3>Carregando dados da planilha…</h3></div>
+    </div>
+  </div>
+
+  <!-- ============ TELA 2 · DETALHAMENTO ============ -->
+  <div id="page-detalhe" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Detalhamento das Despesas</h1>
+        <p>Tabela do registro de despesas, com filtros por Unidade, Origem, Natureza e Situação. Clique na descrição de uma despesa para ver os demais dados (identificador, ação do orçamento, documento e data).</p>
+      </div>
+      <div class="topbar-right">
+        <div class="update-pill" id="updatePillDetalhe">Carregando…</div>
+        <button class="refresh-btn" id="refreshBtnDetalhe" onclick="manualRefresh()"><span class="ic">⟳</span> Atualizar</button>
+      </div>
+    </div>
+
+    <div class="content" id="contentDetalhe">
+      <div class="state-box"><div class="spinner"></div><h3>Carregando dados da planilha…</h3></div>
+    </div>
+  </div>
+
+  <!-- ============ TELA 3 · EXTRAORÇAMENTÁRIO ============ -->
+  <div id="page-extra" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Recursos Extraorçamentários às Unidades</h1>
+        <p>Encaminhamento de recursos extraorçamentários por unidade, com as propostas em análise pela Reitoria. Reitoria não incluída nesta tela.</p>
+      </div>
+    </div>
+    <div class="content" id="contentExtra"></div>
+  </div>
+
+  <!-- ============ TELA 4 · INDICADORES RFEPCT ============ -->
+  <div id="page-indicadores" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Indicadores da Matriz Orçamentária (PNP)</h1>
+        <p>Percentuais que orientaram a composição orçamentária das unidades, tanto na projeção da PLOA quanto na identificação dos valores das propostas em análise pela Reitoria. Linha "RFEPCT" no topo é a referência da rede.</p>
+      </div>
+    </div>
+    <div class="content" id="contentIndicadores"></div>
+  </div>
+
+</div>
+
+<!-- ============ MODAL · DETALHE DA DESPESA ============ -->
+<div class="modal-overlay hidden" id="detailModal" onclick="if(event.target===this) closeDetail()">
+  <div class="modal-card">
+    <button type="button" class="modal-close" onclick="closeDetail()">Fechar ✕</button>
+    <dl class="modal-dl" id="modalDl"></dl>
+  </div>
+</div>
+
+<script>
+/* ================= Configuração da fonte de dados ================= */
+const SHEET_ID = '1B78UxqnO9QY0wZTuIf41dVhnVTmTd_UMz3zdSnVfFjI';
+const GID = '814128660';
+const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutos
+const PIVOT_HEAD_ROW_H = 36; // px — altura fixa de cada linha do cabeçalho da tabela pivô (ver .pivot-th no CSS)
+const EXTRA_HEAD_ROW_H = 40; // px — altura fixa de cada linha do cabeçalho da tabela de Extraorçamentário
+// Origens de recurso válidas, na ordem da validação da planilha — usado na tela de Totais
+// para mostrar toda Origem possível (mesmo sem nenhuma despesa lançada ainda).
+const ORIGENS_VALIDAS = ['LOA', 'PAC', 'RP2', 'RP6', 'RP7', 'RTC'];
+
+/* ================= Dados estáticos: Recursos Extraorçamentários ================= */
+// Fonte: dados fornecidos diretamente (não lidos da planilha ao vivo). Reitoria excluída por pedido.
+const EXTRA_ORC_DATA = [
+  {unidade:"Avançado Areia", v2624:0, distJan:0, distMaio:0, proposta2:30970.28, extraP2:30970.28, p4Recomp:0, p4Todos:22842.84, extraP4:22842.84},
+  {unidade:"Avançado JP Zona Sul", v2624:487940.49, distJan:195176.2, distMaio:386697.66, proposta2:0, extraP2:581873.86, p4Recomp:0, p4Todos:2902.02, extraP4:584775.88},
+  {unidade:"Avançado Soledade", v2624:342094.88, distJan:222361.67, distMaio:100000.0, proposta2:33935.72, extraP2:356297.39, p4Recomp:19733.21, p4Todos:3648.45, extraP4:345743.33},
+  {unidade:"Cabedelo", v2624:0, distJan:0, distMaio:0, proposta2:60289.67, extraP2:60289.67, p4Recomp:0, p4Todos:62261.07, extraP4:62261.07},
+  {unidade:"Cabedelo Centro", v2624:109383.56, distJan:48128.77, distMaio:0, proposta2:61254.79, extraP2:109383.56, p4Recomp:61254.79, p4Todos:14997.2, extraP4:124380.76},
+  {unidade:"Cajazeiras", v2624:0, distJan:0, distMaio:0, proposta2:48814.36, extraP2:48814.36, p4Recomp:0, p4Todos:50314.99, extraP4:50314.99},
+  {unidade:"Campina Grande", v2624:0, distJan:0, distMaio:0, proposta2:98849.29, extraP2:98849.29, p4Recomp:0, p4Todos:102253.48, extraP4:102253.48},
+  {unidade:"Catolé do Rocha", v2624:0, distJan:0, distMaio:0, proposta2:66195.18, extraP2:66195.18, p4Recomp:0, p4Todos:46406.21, extraP4:46406.21},
+  {unidade:"Esperança", v2624:881258.84, distJan:352503.54, distMaio:0, proposta2:99809.67, extraP2:452313.21, p4Recomp:68110.14, p4Todos:19263.19, extraP4:439876.87},
+  {unidade:"Guarabira", v2624:469702.53, distJan:140910.76, distMaio:500000.0, proposta2:0, extraP2:640910.76, p4Recomp:0, p4Todos:11362.14, extraP4:652272.9},
+  {unidade:"Itabaiana", v2624:366511.83, distJan:219907.1, distMaio:0, proposta2:146604.73, extraP2:366511.83, p4Recomp:146604.73, p4Todos:28233.11, extraP4:394744.94},
+  {unidade:"Itaporanga", v2624:299717.73, distJan:134872.98, distMaio:0, proposta2:132742.03, extraP2:267615.01, p4Recomp:91081.88, p4Todos:24341.81, extraP4:250296.67},
+  {unidade:"João Pessoa", v2624:0, distJan:0, distMaio:0, proposta2:136745.57, extraP2:136745.57, p4Recomp:0, p4Todos:139804.07, extraP4:139804.07},
+  {unidade:"Monteiro", v2624:318640.38, distJan:151354.18, distMaio:0, proposta2:167286.2, extraP2:318640.38, p4Recomp:167286.2, p4Todos:35630.71, extraP4:354271.09},
+  {unidade:"Patos", v2624:0, distJan:0, distMaio:0, proposta2:129106.93, extraP2:129106.93, p4Recomp:0, p4Todos:87653.05, extraP4:87653.05},
+  {unidade:"Pedras de Fogo", v2624:0, distJan:0, distMaio:0, proposta2:30045.83, extraP2:30045.83, p4Recomp:0, p4Todos:21851.9, extraP4:21851.9},
+  {unidade:"Picuí", v2624:10543.18, distJan:0, distMaio:240000.0, proposta2:0, extraP2:240000.0, p4Recomp:0, p4Todos:30509.81, extraP4:270509.81},
+  {unidade:"Princesa Isabel", v2624:548967.84, distJan:315656.51, distMaio:0, proposta2:233311.33, extraP2:548967.84, p4Recomp:233311.33, p4Todos:31868.98, extraP4:580836.82},
+  {unidade:"Santa Luzia", v2624:793988.15, distJan:317595.26, distMaio:200000.0, proposta2:55467.72, extraP2:573062.98, p4Recomp:37851.17, p4Todos:10705.22, extraP4:566151.65},
+  {unidade:"Santa Rita", v2624:536619.81, distJan:321971.89, distMaio:0, proposta2:179100.57, extraP2:501072.46, p4Recomp:173848.44, p4Todos:23914.92, extraP4:519735.25},
+  {unidade:"Sousa", v2624:0, distJan:0, distMaio:0, proposta2:27489.56, extraP2:27489.56, p4Recomp:0, p4Todos:29234.84, extraP4:29234.84},
+];
+
+/* ================= Dados estáticos: Indicadores RFEPCT / PNP ================= */
+// Transcrito de uma imagem enviada pelo usuário (valores e cores lidos visualmente) — vale
+// conferência: não veio de leitura automática de planilha nem de fonte em texto.
+const RFEPCT_BASELINE = {rap:"20,42", iea:"73,30%", tecnico:"50,60%", formacao:"13,90%", eja:"2,11%"};
+const RFEPCT_DATA = [
+  {unidade:"Reitoria", rap:{v:"23,74",c:"green"}, iea:{v:"45,10%",c:"red"}, tecnico:{v:"50,90%",c:"blue"}, formacao:{v:"14,30%",c:"red"}, eja:{v:"1,31%",c:"red"}},
+  {unidade:"Avançado Areia", rap:{v:"31,29",c:"green"}, iea:{v:"46,43%",c:"red"}, tecnico:{v:"85,90%",c:"green"}, formacao:{v:"3,60%",c:"red"}, eja:{v:"11,23%",c:"green"}},
+  {unidade:"Avançado JP Zona Sul", rap:{v:"17,09",c:"red"}, iea:{v:"38,89%",c:"red"}, tecnico:{v:"80,60%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Avançado Soledade", rap:{v:"22,56",c:"green"}, iea:{v:"25,32%",c:"red"}, tecnico:{v:"85,40%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Cabedelo", rap:{v:"32,86",c:"green"}, iea:{v:"72,46%",c:"orange"}, tecnico:{v:"40,70%",c:"red"}, formacao:{v:"27,10%",c:"green"}, eja:{v:"3,31%",c:"yellow"}},
+  {unidade:"Cabedelo Centro", rap:{v:"13,33",c:"red"}, iea:{v:"40,66%",c:"red"}, tecnico:{v:"62,70%",c:"green"}, formacao:{v:"3,20%",c:"red"}, eja:{v:"6,44%",c:"blue"}},
+  {unidade:"Cajazeiras", rap:{v:"29,50",c:"green"}, iea:{v:"53,31%",c:"red"}, tecnico:{v:"40,80%",c:"red"}, formacao:{v:"15,20%",c:"blue"}, eja:{v:"1,82%",c:"red"}},
+  {unidade:"Campina Grande", rap:{v:"25,47",c:"green"}, iea:{v:"34,94%",c:"red"}, tecnico:{v:"47,10%",c:"red"}, formacao:{v:"26,20%",c:"green"}, eja:{v:"0,37%",c:"red"}},
+  {unidade:"Catolé do Rocha", rap:{v:"23,08",c:"green"}, iea:{v:"89,31%",c:"green"}, tecnico:{v:"95,30%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Esperança", rap:{v:"15,46",c:"red"}, iea:{v:"60,00%",c:"green"}, tecnico:{v:"65,70%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Guarabira", rap:{v:"27,64",c:"green"}, iea:{v:"57,14%",c:"red"}, tecnico:{v:"36,00%",c:"red"}, formacao:null, eja:null},
+  {unidade:"Itabaiana", rap:{v:"18,16",c:"blue"}, iea:{v:"74,45%",c:"yellow"}, tecnico:{v:"100,00%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Itaporanga", rap:{v:"16,80",c:"red"}, iea:{v:"70,42%",c:"orange"}, tecnico:{v:"91,90%",c:"green"}, formacao:null, eja:null},
+  {unidade:"João Pessoa", rap:{v:"25,39",c:"green"}, iea:{v:"43,41%",c:"red"}, tecnico:{v:"42,70%",c:"red"}, formacao:{v:"11,00%",c:"red"}, eja:{v:"0,77%",c:"red"}},
+  {unidade:"Monteiro", rap:{v:"24,69",c:"green"}, iea:{v:"54,63%",c:"red"}, tecnico:{v:"50,90%",c:"blue"}, formacao:{v:"0,60%",c:"red"}, eja:null},
+  {unidade:"Patos", rap:{v:"24,70",c:"green"}, iea:{v:"23,86%",c:"red"}, tecnico:{v:"60,20%",c:"green"}, formacao:{v:"0,70%",c:"red"}, eja:null},
+  {unidade:"Pedras de Fogo", rap:{v:"22,97",c:"green"}, iea:{v:"35,83%",c:"red"}, tecnico:{v:"89,10%",c:"green"}, formacao:null, eja:{v:"6,23%",c:"blue"}},
+  {unidade:"Picuí", rap:{v:"15,22",c:"red"}, iea:{v:"55,77%",c:"red"}, tecnico:{v:"56,70%",c:"blue"}, formacao:{v:"27,10%",c:"green"}, eja:null},
+  {unidade:"Princesa Isabel", rap:{v:"22,54",c:"green"}, iea:{v:"42,77%",c:"red"}, tecnico:{v:"57,10%",c:"blue"}, formacao:{v:"28,10%",c:"green"}, eja:null},
+  {unidade:"Santa Luzia", rap:{v:"15,94",c:"red"}, iea:{v:"38,85%",c:"red"}, tecnico:{v:"100,00%",c:"green"}, formacao:null, eja:null},
+  {unidade:"Santa Rita", rap:{v:"18,36",c:"blue"}, iea:{v:"78,72%",c:"yellow"}, tecnico:{v:"87,40%",c:"green"}, formacao:{v:"1,20%",c:"red"}, eja:null},
+  {unidade:"Sousa", rap:{v:"16,35",c:"red"}, iea:{v:"32,72%",c:"red"}, tecnico:{v:"41,90%",c:"red"}, formacao:{v:"34,40%",c:"green"}, eja:{v:"3,59%",c:"yellow"}},
+];
+
+let ITENS = [];
+let lastError = null;
+let currentFilters = { busca:'', unidade:'', origem:'', natureza:'', situacao:'' };
+
+/* ================= Utilidades ================= */
+function fmtBRL(v){
+  return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+
+/* Para células de tabela: símbolo R$ à esquerda, valor alinhado à direita */
+function fmtBRLCell(v){
+  const num = v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return `<span class="cur-cell"><span class="cur-sym">R$</span><span class="cur-val">${num}</span></span>`;
+}
+
+/*
+ * O export CSV/gviz do Google Sheets não envia cabeçalho CORS, então fetch()
+ * é bloqueado pelo navegador. A saída é carregar a resposta via <script> (JSONP),
+ * que não passa pela checagem de CORS — é a forma padrão de ler uma planilha
+ * pública direto do navegador sem backend.
+ */
+function fetchGvizTable(){
+  return new Promise((resolve, reject) => {
+    const cbName = 'gvizCb_' + Math.random().toString(36).slice(2);
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('Tempo esgotado ao contatar a planilha. Verifique sua conexão e tente novamente.'));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timeoutId);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(resp){
+      cleanup();
+      if(!resp || !resp.table) { reject(new Error('A planilha respondeu, mas em um formato inesperado.')); return; }
+      resolve(resp.table);
+    };
+
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&headers=1&tqx=out:json;responseHandler:${cbName}`;
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => { cleanup(); reject(new Error('Não foi possível carregar os dados da planilha. Confirme se ela está compartilhada como "Qualquer pessoa com o link pode visualizar".')); };
+    document.body.appendChild(script);
+  });
+}
+
+function cellText(row, i){
+  if(i < 0 || !row.c || !row.c[i]) return '';
+  const c = row.c[i];
+  if(c.f !== undefined && c.f !== null) return String(c.f).trim();
+  if(c.v !== undefined && c.v !== null) return String(c.v).trim();
+  return '';
+}
+
+function cellNumber(row, i){
+  if(i < 0 || !row.c || !row.c[i]) return 0;
+  const c = row.c[i];
+  const n = typeof c.v === 'number' ? c.v : parseFloat(c.v);
+  return isNaN(n) ? 0 : n;
+}
+
+/* ================= Carregamento dos dados ================= */
+async function loadData(){
+  const table = await fetchGvizTable();
+  if(!table.cols || !table.rows) throw new Error('A planilha foi lida, mas não retornou colunas/linhas.');
+
+  const header = table.cols.map(c => (c.label || '').trim());
+  const idx = {
+    id: header.indexOf('Identificador'),
+    descricao: header.indexOf('Descrição'),
+    unidade: header.indexOf('Unidade'),
+    valor: header.findIndex(h => h.replace(/\s+/g,' ').trim().startsWith('Valor')),
+    origem: header.indexOf('Origem'),
+    natureza: header.indexOf('Natureza'),
+    situacao: header.indexOf('Situação'),
+    acao: header.indexOf('Ação do Orçamento'),
+    doc: header.indexOf('Doc. de Referência'),
+    dataDoc: header.indexOf('Data do Doc.'),
+  };
+
+  if(idx.id === -1) throw new Error('Não encontrei a coluna "Identificador" na planilha — confira se a aba lida é a de despesas.');
+
+  const itens = [];
+  table.rows.forEach(row => {
+    if(!row || !row.c) return;
+    const id = cellText(row, idx.id);
+    if(!id) return; // ignora linhas vazias/decorativas
+    itens.push({
+      id,
+      descricao: cellText(row, idx.descricao),
+      unidade: cellText(row, idx.unidade),
+      valor: cellNumber(row, idx.valor),
+      origem: cellText(row, idx.origem),
+      natureza: cellText(row, idx.natureza),
+      situacao: cellText(row, idx.situacao),
+      acao: cellText(row, idx.acao),
+      doc: cellText(row, idx.doc),
+      dataDoc: cellText(row, idx.dataDoc),
+    });
+  });
+  return itens;
+}
+
+async function refreshData(isManual){
+  const btns = [document.getElementById('refreshBtnTotais'), document.getElementById('refreshBtnDetalhe')];
+  btns.forEach(b => b && b.classList.add('spinning'));
+  try{
+    ITENS = await loadData();
+    lastError = null;
+  } catch(e){
+    lastError = e.message || 'Erro ao carregar a planilha.';
+  }
+  btns.forEach(b => b && b.classList.remove('spinning'));
+  updatePills();
+  if(lastError){
+    renderError();
+  } else {
+    buildTotais();
+    buildDetalheFilters();
+    buildDetalheTable();
+  }
+}
+
+function manualRefresh(){ refreshData(true); }
+
+function updatePills(){
+  const now = new Date();
+  const hora = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  const pills = [document.getElementById('updatePillTotais'), document.getElementById('updatePillDetalhe')];
+  pills.forEach(p => {
+    if(!p) return;
+    if(lastError){
+      p.textContent = 'Falha ao atualizar';
+      p.classList.add('err');
+    } else {
+      p.textContent = `Atualizado às ${hora}`;
+      p.classList.remove('err');
+    }
+  });
+}
+
+function renderError(){
+  const html = `
+    <div class="state-box">
+      <h3>Não foi possível carregar os dados</h3>
+      <p>${lastError}</p>
+      <p style="margin-top:14px;">Confirme se a planilha está compartilhada como "Qualquer pessoa com o link pode visualizar" (ou publicada na web) e clique em Atualizar.</p>
+    </div>`;
+  document.getElementById('contentTotais').innerHTML = html;
+  document.getElementById('contentDetalhe').innerHTML = html;
+}
+
+/* ================= Tela 1 · Totais ================= */
+/*
+ * Tabela pivô: Unidade nas linhas; Origem > Situação > Natureza nas colunas,
+ * em três níveis de cabeçalho aninhado. Só aparecem colunas para combinações
+ * que de fato existem nos dados filtrados (nada de Origem/Situação/Natureza
+ * "vazia" ocupando espaço).
+ */
+let totaisFilters = { origem:'', situacao:'', natureza:'' };
+
+function applyTotaisFilters(itens){
+  return itens.filter(it => {
+    if(totaisFilters.origem && it.origem !== totaisFilters.origem) return false;
+    if(totaisFilters.situacao && it.situacao !== totaisFilters.situacao) return false;
+    if(totaisFilters.natureza && it.natureza !== totaisFilters.natureza) return false;
+    return true;
+  });
+}
+
+function buildPivotStructure(itens){
+  // universo de Situação/Natureza: o que aparece nos dados já filtrados
+  const situacoesGlobais = [...new Set(itens.map(it => it.situacao || 'Não informado'))]
+    .sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const naturezasGlobais = [...new Set(itens.map(it => it.natureza || 'Não informado'))]
+    .sort((a,b)=>a.localeCompare(b,'pt-BR'));
+
+  // Origem: lista fixa (ordem da validação da planilha), não só as que já têm despesa —
+  // assim uma Origem sem nenhum lançamento ainda aparece na tabela, toda em "—".
+  // Se houver filtro de Origem específico, mostra só ela.
+  const origens = totaisFilters.origem ? [totaisFilters.origem] : ORIGENS_VALIDAS.slice();
+
+  // cada Origem recebe a mesma grade completa de Situação x Natureza — combinações
+  // sem despesa aparecem como "—" (calculado depois, na montagem das células)
+  return origens.map(origem => ({
+    origem,
+    situacoes: situacoesGlobais.map(situacao => ({situacao, naturezas: naturezasGlobais})),
+  }));
+}
+
+function flattenLeafCols(structure){
+  const leaves = [];
+  structure.forEach(o => o.situacoes.forEach(s => s.naturezas.forEach(n => {
+    leaves.push({origem:o.origem, situacao:s.situacao, natureza:n});
+  })));
+  return leaves;
+}
+
+function renderPivotTable(itens){
+  const structure = buildPivotStructure(itens);
+  const leafCols = flattenLeafCols(structure);
+  const unidades = uniqueSorted(itens, i=>i.unidade);
+
+  if(leafCols.length === 0 || unidades.length === 0){
+    return `<div class="panel"><div class="state-box"><h3>Sem dados para os filtros selecionados</h3></div></div>`;
+  }
+
+  // linha 1: Origem (colspan = qtd de colunas-folha sob ela) — top:0 (linha do topo)
+  const row1 = structure.map(o => {
+    const span = o.situacoes.reduce((s,sit)=>s+sit.naturezas.length,0);
+    return `<th colspan="${span}" class="pivot-th group-origem" style="top:0">${o.origem}</th>`;
+  }).join('');
+
+  // linha 2: Situação (colspan = qtd de naturezas sob ela) — top:1 linha de cabeçalho abaixo
+  const row2 = structure.map(o => o.situacoes.map(s =>
+    `<th colspan="${s.naturezas.length}" class="pivot-th group-situacao" style="top:${PIVOT_HEAD_ROW_H}px">${s.situacao}</th>`
+  ).join('')).join('');
+
+  // linha 3: Natureza (folha) — top:2 linhas de cabeçalho abaixo
+  const row3 = leafCols.map(c => `<th class="pivot-th leaf num pivot-val" style="top:${PIVOT_HEAD_ROW_H*2}px">${c.natureza}</th>`).join('');
+
+  // linhas de dados por unidade
+  const bodyRows = unidades.map(unidade => {
+    const itensUnidade = itens.filter(i => i.unidade === unidade);
+    let rowTotal = 0;
+    const cells = leafCols.map(col => {
+      const val = itensUnidade
+        .filter(i => (i.origem||'Não informado')===col.origem && (i.situacao||'Não informado')===col.situacao && (i.natureza||'Não informado')===col.natureza)
+        .reduce((s,i)=>s+i.valor,0);
+      rowTotal += val;
+      return `<td class="num pivot-val">${val ? fmtBRLCell(val) : '—'}</td>`;
+    }).join('');
+    return `<tr><td class="pivot-unit-col" title="${escapeAttr(unidade)}">${unidade}</td><td class="num pivot-total-col">${fmtBRLCell(rowTotal)}</td>${cells}</tr>`;
+  }).join('');
+
+  // rodapé: total geral por coluna
+  let grandTotal = 0;
+  const footCells = leafCols.map(col => {
+    const val = itens
+      .filter(i => (i.origem||'Não informado')===col.origem && (i.situacao||'Não informado')===col.situacao && (i.natureza||'Não informado')===col.natureza)
+      .reduce((s,i)=>s+i.valor,0);
+    grandTotal += val;
+    return `<td class="num pivot-val">${val ? fmtBRLCell(val) : '—'}</td>`;
+  }).join('');
+
+  return `
+    <div class="panel pivot-wrap">
+      <table class="pivot-table">
+        <thead>
+          <tr><th rowspan="3" class="pivot-th pivot-unit-col" style="top:0">Unidade</th><th rowspan="3" class="pivot-th pivot-total-col num" style="top:0">Total</th>${row1}</tr>
+          <tr>${row2}</tr>
+          <tr>${row3}</tr>
+        </thead>
+        <tbody>${bodyRows}</tbody>
+        <tfoot>
+          <tr><td class="pivot-unit-col">Total geral</td><td class="num pivot-total-col">${fmtBRLCell(grandTotal)}</td>${footCells}</tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+function buildTotaisFilterBar(){
+  const origens = ORIGENS_VALIDAS; // lista fixa (validação da planilha), não só as usadas
+  const situacoes = uniqueSorted(ITENS, i=>i.situacao);
+  const naturezas = uniqueSorted(ITENS, i=>i.natureza);
+  const opts = (arr) => arr.map(v => `<option value="${v}">${v}</option>`).join('');
+  return `
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>Origem</label>
+        <select id="tfOrigem" onchange="onTotaisFilterChange()"><option value="">Todas</option>${opts(origens)}</select>
+      </div>
+      <div class="filter-field">
+        <label>Situação</label>
+        <select id="tfSituacao" onchange="onTotaisFilterChange()"><option value="">Todas</option>${opts(situacoes)}</select>
+      </div>
+      <div class="filter-field">
+        <label>Natureza</label>
+        <select id="tfNatureza" onchange="onTotaisFilterChange()"><option value="">Todas</option>${opts(naturezas)}</select>
+      </div>
+      <button class="filter-clear" onclick="clearTotaisFilters()">Ver tudo</button>
+    </div>
+    <div id="totaisPivotArea"></div>`;
+}
+
+function updateTotaisView(){
+  const filtrados = applyTotaisFilters(ITENS);
+
+  const totalCusteio = filtrados.filter(i=>i.natureza==='Custeio').reduce((s,i)=>s+i.valor,0);
+  const totalInvestimento = filtrados.filter(i=>i.natureza==='Investimento').reduce((s,i)=>s+i.valor,0);
+  const totalGeral = totalCusteio + totalInvestimento;
+
+  const kpiHtml = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Total de Custeio</div>
+        <div class="kpi-value">${fmtBRL(totalCusteio)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total de Investimento</div>
+        <div class="kpi-value">${fmtBRL(totalInvestimento)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Geral</div>
+        <div class="kpi-value">${fmtBRL(totalGeral)}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('totaisPivotArea').innerHTML = kpiHtml + renderPivotTable(filtrados);
+}
+
+function onTotaisFilterChange(){
+  totaisFilters.origem = document.getElementById('tfOrigem').value;
+  totaisFilters.situacao = document.getElementById('tfSituacao').value;
+  totaisFilters.natureza = document.getElementById('tfNatureza').value;
+  updateTotaisView();
+}
+
+function clearTotaisFilters(){
+  totaisFilters = { origem:'', situacao:'', natureza:'' };
+  buildTotais();
+}
+
+function buildTotais(){
+  document.getElementById('contentTotais').innerHTML = buildTotaisFilterBar();
+  document.getElementById('tfOrigem').value = totaisFilters.origem;
+  document.getElementById('tfSituacao').value = totaisFilters.situacao;
+  document.getElementById('tfNatureza').value = totaisFilters.natureza;
+  updateTotaisView();
+}
+
+/* ================= Tela 2 · Detalhamento ================= */
+function uniqueSorted(itens, keyFn){
+  const set = new Set(itens.map(keyFn).map(v => (v||'').trim()).filter(v => v!==''));
+  return [...set].sort((a,b) => a.localeCompare(b,'pt-BR'));
+}
+
+function buildDetalheFilters(){
+  const unidades = uniqueSorted(ITENS, i=>i.unidade);
+  const origens = uniqueSorted(ITENS, i=>i.origem);
+  const naturezas = uniqueSorted(ITENS, i=>i.natureza);
+  const situacoes = uniqueSorted(ITENS, i=>i.situacao);
+
+  const opts = (arr) => arr.map(v => `<option value="${v}">${v}</option>`).join('');
+
+  const html = `
+    <div class="filter-bar">
+      <div class="filter-field" style="min-width:220px;">
+        <label>Buscar</label>
+        <input type="text" id="fBusca" placeholder="Buscar por descrição…" value="${currentFilters.busca}" oninput="onFilterChange()">
+      </div>
+      <div class="filter-field">
+        <label>Unidade</label>
+        <select id="fUnidade" onchange="onFilterChange()">
+          <option value="">Todas</option>${opts(unidades)}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Origem</label>
+        <select id="fOrigem" onchange="onFilterChange()">
+          <option value="">Todas</option>${opts(origens)}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Natureza</label>
+        <select id="fNatureza" onchange="onFilterChange()">
+          <option value="">Todas</option>${opts(naturezas)}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Situação</label>
+        <select id="fSituacao" onchange="onFilterChange()">
+          <option value="">Todas</option>${opts(situacoes)}
+        </select>
+      </div>
+      <button class="filter-clear" onclick="clearFilters()">Limpar filtros</button>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Unidade</th>
+            <th>Descrição</th>
+            <th class="th-center">Origem</th>
+            <th class="th-center">Natureza</th>
+            <th class="th-center">Situação</th>
+            <th class="num th-center">Valor</th>
+          </tr>
+        </thead>
+        <tbody id="detalheBody"></tbody>
+        <tfoot id="detalheFoot"></tfoot>
+      </table>
+    </div>`;
+
+  document.getElementById('contentDetalhe').innerHTML = html;
+
+  // restaura valores de filtro já selecionados (após refresh, por ex.)
+  if(document.getElementById('fUnidade')) document.getElementById('fUnidade').value = currentFilters.unidade;
+  if(document.getElementById('fOrigem')) document.getElementById('fOrigem').value = currentFilters.origem;
+  if(document.getElementById('fNatureza')) document.getElementById('fNatureza').value = currentFilters.natureza;
+  if(document.getElementById('fSituacao')) document.getElementById('fSituacao').value = currentFilters.situacao;
+
+  // delegação de clique: abrir popup de detalhe ao clicar na descrição
+  document.getElementById('detalheBody').addEventListener('click', (e) => {
+    const link = e.target.closest('.desc-link');
+    if(link) openDetail(link.dataset.id);
+  });
+}
+
+function origemBadgeClass(origem){
+  if(origem === 'RP2') return 'origem-rp2';
+  if(origem === 'RTC') return 'origem-rtc';
+  return 'origem-outra';
+}
+function situacaoTagClass(sit){
+  if(sit === 'Atendida') return 'sit-atendida';
+  if(sit === 'Comprometida') return 'sit-comprometida';
+  if(sit === 'Prevista') return 'sit-prevista';
+  return 'sit-outra';
+}
+function naturezaTagClass(nat){
+  return nat === 'Investimento' ? 'tipo-investimento' : 'tipo-custeio';
+}
+
+function applyFilters(){
+  return ITENS.filter(it => {
+    if(currentFilters.busca && !it.descricao.toLowerCase().includes(currentFilters.busca.toLowerCase())) return false;
+    if(currentFilters.unidade && it.unidade !== currentFilters.unidade) return false;
+    if(currentFilters.origem && it.origem !== currentFilters.origem) return false;
+    if(currentFilters.natureza && it.natureza !== currentFilters.natureza) return false;
+    if(currentFilters.situacao && it.situacao !== currentFilters.situacao) return false;
+    return true;
+  });
+}
+
+function buildDetalheTable(){
+  const body = document.getElementById('detalheBody');
+  const foot = document.getElementById('detalheFoot');
+  const countEl = document.getElementById('resultCount');
+  if(!body) return;
+
+  const filtrados = applyFilters();
+  countEl.textContent = `${filtrados.length} de ${ITENS.length} registros`;
+
+  const rows = filtrados.map(it => `
+    <tr>
+      <td>${it.unidade}</td>
+      <td class="desc-cell"><span class="desc-link" data-id="${escapeAttr(it.id)}">${it.descricao}</span></td>
+      <td><span class="badge ${origemBadgeClass(it.origem)}">${it.origem || '—'}</span></td>
+      <td><span class="tipo-tag ${naturezaTagClass(it.natureza)}">${it.natureza || '—'}</span></td>
+      <td><span class="sit-tag ${situacaoTagClass(it.situacao)}">${it.situacao || '—'}</span></td>
+      <td class="num">${fmtBRLCell(it.valor)}</td>
+    </tr>`).join('');
+
+  body.innerHTML = rows || `<tr><td colspan="6" class="muted" style="padding:24px 26px;">Nenhum registro para os filtros selecionados.</td></tr>`;
+
+  const totalFiltrado = filtrados.reduce((s,i)=>s+i.valor,0);
+  foot.innerHTML = `<tr><td colspan="5">Total filtrado</td><td class="num">${fmtBRLCell(totalFiltrado)}</td></tr>`;
+}
+
+function onFilterChange(){
+  currentFilters.busca = document.getElementById('fBusca').value;
+  currentFilters.unidade = document.getElementById('fUnidade').value;
+  currentFilters.origem = document.getElementById('fOrigem').value;
+  currentFilters.natureza = document.getElementById('fNatureza').value;
+  currentFilters.situacao = document.getElementById('fSituacao').value;
+  buildDetalheTable();
+}
+
+function clearFilters(){
+  currentFilters = { busca:'', unidade:'', origem:'', natureza:'', situacao:'' };
+  buildDetalheFilters();
+  buildDetalheTable();
+}
+
+/* ---- Popup de detalhe (Identificador, Ação do Orçamento, Doc. e Data) ---- */
+function escapeAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+function escapeHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function openDetail(id){
+  const it = ITENS.find(i => i.id === id);
+  if(!it) return;
+  const dl = document.getElementById('modalDl');
+  dl.innerHTML = `
+    <dt>Identificador</dt><dd>${escapeHtml(it.id)}</dd>
+    <dt>Descrição</dt><dd>${escapeHtml(it.descricao)}</dd>
+    <dt>Unidade</dt><dd>${escapeHtml(it.unidade)}</dd>
+    <dt>Origem</dt><dd>${escapeHtml(it.origem) || '—'}</dd>
+    <dt>Natureza</dt><dd>${escapeHtml(it.natureza) || '—'}</dd>
+    <dt>Situação</dt><dd>${escapeHtml(it.situacao) || '—'}</dd>
+    <dt>Valor</dt><dd>${fmtBRL(it.valor)}</dd>
+    <dt>Ação do Orçamento</dt><dd>${escapeHtml(it.acao) || '—'}</dd>
+    <dt>Doc. de Referência</dt><dd>${escapeHtml(it.doc) || '—'}</dd>
+    <dt>Data do Doc.</dt><dd>${escapeHtml(it.dataDoc) || '—'}</dd>
+  `;
+  document.getElementById('detailModal').classList.remove('hidden');
+}
+
+function closeDetail(){
+  document.getElementById('detailModal').classList.add('hidden');
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeDetail();
+});
+
+/* ================= Tela 3 · Extraorçamentário ================= */
+function renderExtraTable(){
+  const cols = ['v2624','distJan','distMaio','p4Recomp','p4Todos','extraP4'];
+  const rows = EXTRA_ORC_DATA.map(u => `
+    <tr>
+      <td>${u.unidade}</td>
+      ${cols.map(c => `<td class="num">${u[c] ? fmtBRLCell(u[c]) : '—'}</td>`).join('')}
+    </tr>`).join('');
+  const totals = cols.map(c => EXTRA_ORC_DATA.reduce((s,u)=>s+u[c],0));
+
+  const html = `
+    <div class="panel">
+      <table class="extra-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="top:0">Unidade</th>
+            <th rowspan="2" class="num th-center" style="top:0">2026 – 2024</th>
+            <th rowspan="2" class="num th-center" style="top:0">Dist. em Janeiro</th>
+            <th rowspan="2" class="num th-center" style="top:0">Dist. em Maio</th>
+            <th colspan="2" class="th-center proposta-group" style="top:0">Proposta</th>
+            <th rowspan="2" class="num th-center" style="top:0">Total</th>
+          </tr>
+          <tr>
+            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">Unidades de Recomp.</th>
+            <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">Todas as Unidades</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            ${totals.map(t => `<td class="num">${fmtBRLCell(t)}</td>`).join('')}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="notes-panel">
+      <h3>Sobre as colunas</h3>
+      <dl class="notes-dl">
+        <dt>2026 – 2024</dt>
+        <dd>Diferença entre o orçamento previsto para 2026 e o de 2024. Valores definidos pelo governo federal: desde 2025 a distribuição orçamentária da Rede Federal usa a Matriz de Distribuição Orçamentária da SETEC/MEC — metodologia já vigente desde a Portaria MEC nº 646/2022, atualizada pela Portaria MEC nº 243, de 10/03/2026.</dd>
+        <dt>Dist. em Janeiro</dt>
+        <dd>Recursos distribuídos de forma extraorçamentária, a partir de recursos recebidos via índices de qualidade. <em>Terminologia a confirmar</em> — não localizei o texto da Portaria nº 243/2026 para validar esse termo; busquei na web e não encontrei a portaria com esse número/data.</dd>
+        <dt>Dist. em Maio</dt>
+        <dd>Recursos oriundos da LOA, especificamente de Resultado Primário — despesas primárias discricionárias (gastos não obrigatórios).</dd>
+        <dt>Unidades de Recomp. (Proposta)</dt>
+        <dd>Proposta em análise pela Reitoria, da ordem de R$ 1.000.000,00, para as unidades que tiveram redução orçamentária em relação a 2024 — baseada na matriz orçamentária, cujo principal parâmetro é a quantidade de matrículas da unidade.</dd>
+        <dt>Todas as Unidades (Proposta)</dt>
+        <dd>Proposta em análise pela Reitoria, no valor total de R$ 800.000,00, distribuída a todas as unidades (não só as com déficit orçamentário).</dd>
+        <dt>Total</dt>
+        <dd>A soma que bate com os valores informados é Dist. em Janeiro + Dist. em Maio + Unidades de Recomp. + Todas as Unidades — a descrição original citava só três dessas parcelas (sem a Dist. em Janeiro), então sinalizo a diferença para conferência.</dd>
+      </dl>
+      <p class="notes-footer">Todos os valores das propostas em análise pela Reitoria são baseados nos mesmos índices/parâmetros qualitativos já usados pela matriz orçamentária. Reitoria não incluída nesta tela, a pedido. Dados estáticos (não lidos ao vivo de planilha).</p>
+    </div>`;
+  document.getElementById('contentExtra').innerHTML = html;
+}
+
+/* ================= Tela 4 · Indicadores RFEPCT / PNP ================= */
+function rfepctCell(cell){
+  if(!cell) return `<td class="num rfepct-cell">—</td>`;
+  return `<td class="num rfepct-cell rfepct-${cell.c}">${cell.v}</td>`;
+}
+
+function renderIndicadoresTable(){
+  const rows = RFEPCT_DATA.map(u => `
+    <tr>
+      <td>${u.unidade}</td>
+      ${rfepctCell(u.rap)}
+      ${rfepctCell(u.iea)}
+      ${rfepctCell(u.tecnico)}
+      ${rfepctCell(u.formacao)}
+      ${rfepctCell(u.eja)}
+    </tr>`).join('');
+
+  const html = `
+    <div class="panel">
+      <table class="rfepct-table">
+        <thead>
+          <tr>
+            <th rowspan="2">RFEPCT</th>
+            <th colspan="5" class="pnp-group">PNP</th>
+          </tr>
+          <tr>
+            <th class="num th-center">RAP</th>
+            <th class="num th-center">IEA</th>
+            <th class="num th-center">Técnico</th>
+            <th class="num th-center">Formação</th>
+            <th class="num th-center">EJA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="rfepct-baseline">
+            <td>RFEPCT (referência)</td>
+            <td class="num">${RFEPCT_BASELINE.rap}</td>
+            <td class="num">${RFEPCT_BASELINE.iea}</td>
+            <td class="num">${RFEPCT_BASELINE.tecnico}</td>
+            <td class="num">${RFEPCT_BASELINE.formacao}</td>
+            <td class="num">${RFEPCT_BASELINE.eja}</td>
+          </tr>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+    <div class="notes-panel">
+      <p>Percentuais que orientaram a composição orçamentária das unidades, tanto na projeção da PLOA quanto na identificação dos valores das propostas em análise pela Reitoria. A linha "RFEPCT (referência)" é o valor médio/base da rede, usado como comparação para as unidades abaixo.</p>
+      <p class="notes-footer">Dados transcritos de uma imagem enviada (valores e cores lidos visualmente, não de planilha ou fonte em texto) — vale a pena conferir contra a fonte original antes de uso formal. Células em branco indicam indicador não aplicável/sem valor para aquela unidade.</p>
+    </div>`;
+  document.getElementById('contentIndicadores').innerHTML = html;
+}
+
+/* ================= Navegação ================= */
+const PAGES = ['totais', 'detalhe', 'extra', 'indicadores'];
+function switchPage(page){
+  PAGES.forEach(p => {
+    document.getElementById('page-' + p).style.display = (p === page) ? 'block' : 'none';
+    document.getElementById('nav' + p.charAt(0).toUpperCase() + p.slice(1)).classList.toggle('active', p === page);
+  });
+  window.scrollTo(0,0);
+}
+
+document.getElementById('collapseBtn').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('collapsed');
+});
+
+/* Ícones de recolher/expandir a barra lateral (estilo "painel", como no Claude) */
+const ICON_SIDEBAR_COLLAPSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="10" y1="4" x2="10" y2="20"/><path d="M7 9l-2 3 2 3"/></svg>';
+const ICON_SIDEBAR_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="10" y1="4" x2="10" y2="20"/><path d="M6.5 9l2 3-2 3"/></svg>';
+function updateCollapseIcon(){
+  const collapsed = document.getElementById('sidebar').classList.contains('collapsed');
+  document.getElementById('collapseBtn').innerHTML = collapsed ? ICON_SIDEBAR_EXPAND : ICON_SIDEBAR_COLLAPSE;
+}
+document.getElementById('collapseBtn').addEventListener('click', updateCollapseIcon);
+updateCollapseIcon();
+
+/* ================= Inicialização ================= */
+refreshData(false);
+setInterval(() => refreshData(false), AUTO_REFRESH_MS);
+renderExtraTable();
+renderIndicadoresTable();
+switchPage('totais');
+</script>
+</body>
+</html>
