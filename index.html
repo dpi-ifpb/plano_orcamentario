@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DPI · Registro de Despesas</title>
+<title>DPI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -75,7 +75,7 @@
   .nav-item.active{background:rgba(255,255,255,.12); color:#fff;}
 
   /* ---------- MAIN ---------- */
-  .main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow-y:auto;}
+  .main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow-y:auto; overflow-x:hidden;}
   .topbar{display:flex; align-items:flex-start; justify-content:space-between; padding:26px 36px 10px; gap:20px; flex-wrap:wrap;}
   .topbar-left .eyebrow{font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--c2);}
   .topbar h1{font-size:22px; font-weight:600; margin-top:4px;}
@@ -95,7 +95,7 @@
   .refresh-btn.spinning .ic{display:inline-block; animation:spin .8s linear infinite;}
   @keyframes spin{from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
 
-  .content{padding:14px 36px 48px;}
+  .content{padding:14px 36px 48px; min-width:0;}
 
   /* KPI cards */
   .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-bottom:22px;}
@@ -113,12 +113,12 @@
     color:var(--ink-soft); margin:26px 2px 10px;
   }
   .section-label:first-of-type{margin-top:0;}
-  .panel{background:var(--surface); border:none; border-radius:0;}
+  .panel{background:var(--surface); border:none; border-radius:0; overflow-x:auto; max-width:100%;}
   .panel + .panel{margin-top:14px;}
   .panel-pad{padding:24px 26px;}
 
   /* Table */
-  table{width:100%; border-collapse:collapse; font-size:13px;}
+  table{width:100%; border-collapse:separate; border-spacing:0; font-size:13px;}
   thead th{
     text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px;
     color:#EDE6F5; font-weight:600; padding:12px 26px;
@@ -126,6 +126,7 @@
   }
   thead th.num, tbody td.num{text-align:right;}
   thead th.th-center{text-align:center;}
+  .pares-center{text-align:center !important;}
   .extra-table thead th{height:40px; box-sizing:border-box; vertical-align:middle;}
   .extra-table .proposta-group{background:#5B3B99;}
   tbody td{padding:13px 26px; color:var(--ink);}
@@ -168,10 +169,12 @@
 
   /* Filter bar */
   .filter-bar{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:18px;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; justify-content:flex-start;
+    margin-bottom:18px; background:#F0E7F7; border:1px solid #DCC9EC; border-radius:10px;
+    padding:14px 16px;
   }
   .filter-field{display:flex; flex-direction:column; gap:5px; min-width:150px;}
-  .filter-field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); font-weight:500;}
+  .filter-field label{font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--c1); font-weight:500;}
   .filter-field input, .filter-field select{
     font-family:'Inter'; font-size:12.5px; color:var(--ink); background:var(--surface);
     border:1px solid var(--border); border-radius:9px; padding:8px 10px; outline:none;
@@ -200,7 +203,7 @@
 
   /* Tabela pivô (Totais) */
   .pivot-wrap{overflow-x:auto;}
-  .pivot-table{border-collapse:collapse; font-size:12.5px; white-space:nowrap;}
+  .pivot-table{border-collapse:separate; border-spacing:0; font-size:12.5px; white-space:nowrap;}
   .pivot-table th, .pivot-table td{border:none; padding:9px 14px;}
   .pivot-th{text-align:center; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; font-weight:600; color:#EDE6F5; background:var(--c1); position:sticky; z-index:5; height:36px; box-sizing:border-box; vertical-align:middle;}
   .pivot-th.group-origem{background:#5B3B99; font-size:11.5px;}
@@ -230,19 +233,20 @@
 
   /* Notas / legenda (telas Extraorçamentário e Indicadores) */
   .notes-panel{
-    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    background:#FFF7DE; border:1px solid #F0DFA0; border-radius:10px;
     padding:20px 24px; margin-top:16px;
   }
-  .notes-panel h3{font-size:13px; font-weight:600; color:var(--c1); margin-bottom:10px;}
-  .notes-panel > p{font-size:13px; color:var(--ink); line-height:1.6;}
-  .notes-dl dt{font-size:12.5px; font-weight:600; color:var(--c2); margin:14px 0 3px;}
+  .notes-panel h3{font-size:13px; font-weight:600; color:#8A6D00; margin-bottom:10px;}
+  .notes-panel > p{font-size:13px; color:#5C4A00; line-height:1.6;}
+  .notes-dl dt{font-size:12.5px; font-weight:600; color:#8A6D00; margin:14px 0 3px;}
   .notes-dl dt:first-child{margin-top:0;}
-  .notes-dl dd{font-size:13px; color:var(--ink); line-height:1.6; margin:0;}
-  .notes-footer{margin-top:16px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--ink-soft);}
+  .notes-dl dd{font-size:13px; color:#5C4A00; line-height:1.6; margin:0;}
+  .notes-footer{margin-top:16px; padding-top:14px; border-top:1px solid #F0DFA0; font-size:12px; color:#8A6D00;}
 
   /* Tabela de indicadores RFEPCT / PNP */
-  .rfepct-table{border-collapse:collapse; font-size:13px; width:100%;}
+  .rfepct-table{border-collapse:separate; border-spacing:0; font-size:13px; width:100%;}
   .rfepct-table th, .rfepct-table td{padding:10px 18px;}
+  .rfepct-table thead th{height:38px; box-sizing:border-box; vertical-align:middle;}
   .rfepct-table tbody td.num{text-align:center;}
   .pnp-group{background:#5B3B99 !important; text-align:center;}
   .rfepct-baseline td{background:#E4D6F0; color:var(--c1); font-weight:600;}
@@ -264,10 +268,21 @@
     box-shadow:0 24px 60px rgba(42,20,88,.28); max-width:540px; width:100%;
     padding:28px 30px; position:relative; max-height:85vh; overflow-y:auto;
   }
+  .modal-card-wide{max-width:620px; transition:max-width .18s ease;}
+  .modal-card-wide.zoomed{max-width:900px;}
+  .modal-card-wide.zoomed .indicator-radar-svg{max-width:800px !important;}
+  .modal-actions{position:absolute; top:16px; right:18px; display:flex; gap:8px;}
+  .modal-zoom{
+    font-family:'Inter'; font-weight:600;
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    font-size:12px; padding:5px 12px; cursor:pointer; color:var(--ink); white-space:nowrap;
+  }
+  .modal-zoom:hover{background:#F0E7DE;}
+  .modal-chart-title{font-size:15px; font-weight:600; color:var(--c1); margin:0 0 16px; padding-right:190px;}
   .modal-close{
-    position:absolute; top:16px; right:18px; font-family:'Inter'; font-weight:600;
+    font-family:'Inter'; font-weight:600;
     background:var(--c1); border:1px solid var(--c1); border-radius:6px;
-    font-size:12px; padding:5px 12px; cursor:pointer; color:#fff;
+    font-size:12px; padding:5px 12px; cursor:pointer; color:#fff; white-space:nowrap;
   }
   .modal-close:hover{background:var(--c1-soft); border-color:var(--c1-soft);}
   .modal-dl{margin:0; padding-right:80px;}
@@ -292,7 +307,6 @@
       <div class="brand-text"><strong>DPI</strong> · <strong>IFPB</strong></div>
       <button type="button" class="collapse-btn" id="collapseBtn"></button>
     </div>
-    <div class="brand-sub">Registro de Despesas</div>
   </div>
 
   <div class="nav-item active" id="navTotais" onclick="switchPage('totais')">
@@ -310,6 +324,18 @@
   <div class="nav-item" id="navIndicadores" onclick="switchPage('indicadores')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
     <span class="nav-label">Indicadores</span>
+  </div>
+  <div class="nav-item" id="navPares" onclick="switchPage('pares')" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.2"/><circle cx="17" cy="7" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M13 14c.6-.3 1.3-.5 2-.5 3.3 0 6 2.7 6 6"/></svg>
+    <span class="nav-label">Análise dos Pares</span>
+  </div>
+  <div class="nav-item" id="navSimulador" onclick="switchPage('simulador')" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4H9z"/><rect x="4" y="7" width="16" height="14" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+    <span class="nav-label">Simulador QE</span>
+  </div>
+  <div class="nav-item" id="navSimuladorF" onclick="switchPage('simuladorF')" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l5-4 5 4v11"/><path d="M15 21V13l4-2v10"/></svg>
+    <span class="nav-label">Simulador Funcionamento</span>
   </div>
 </div>
 
@@ -379,13 +405,60 @@
     <div class="content" id="contentIndicadores"></div>
   </div>
 
+  <!-- ============ TELA 5 · COMPARAÇÃO DE PARES ============ -->
+  <div id="page-pares" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Análise dos Pares (matrícula semelhante)</h1>
+        <p>Compara os indicadores de 2024 (mesma base usada na composição do orçamento em execução) entre unidades de porte parecido, medido pela matrícula total.</p>
+      </div>
+    </div>
+    <div class="content" id="contentPares"></div>
+  </div>
+
+  <!-- ============ TELA 6 · SIMULADOR BLOCO QUALIDADE E EFICIÊNCIA ============ -->
+  <div id="page-simulador" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Simulador — Bloco Qualidade e Eficiência</h1>
+        <p>Simula o efeito de mudanças nos indicadores do IFPB (IEA, RAP, Técnico/Formação/EJA) sobre o valor do Bloco Qualidade e Eficiência (10% do orçamento da rede), recalculando a fórmula da Portaria MEC nº 243/2026 com os dados reais das 41 instituições da RFEPCT.</p>
+      </div>
+    </div>
+    <div class="content" id="contentSimulador"></div>
+  </div>
+
+  <!-- ============ TELA 7 · SIMULADOR BLOCO FUNCIONAMENTO (APROXIMADO) ============ -->
+  <div id="page-simuladorF" style="display:none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Simulador — Bloco Funcionamento (aproximado)</h1>
+        <p>Simula o efeito de mudanças no RAP (Relação Aluno-Professor) de uma unidade do IFPB sobre a fatia do Bloco Funcionamento (80% do orçamento da rede) — via a proporção implícita na Matrícula Total. Estimativa — ver observação na tela.</p>
+      </div>
+    </div>
+    <div class="content" id="contentSimuladorF"></div>
+  </div>
+
 </div>
 
 <!-- ============ MODAL · DETALHE DA DESPESA ============ -->
 <div class="modal-overlay hidden" id="detailModal" onclick="if(event.target===this) closeDetail()">
   <div class="modal-card">
-    <button type="button" class="modal-close" onclick="closeDetail()">Fechar ✕</button>
+    <div class="modal-actions">
+      <button type="button" class="modal-close" onclick="closeDetail()">Fechar ✕</button>
+    </div>
     <dl class="modal-dl" id="modalDl"></dl>
+  </div>
+</div>
+
+<!-- ============ MODAL · GRÁFICO DE INDICADORES ============ -->
+<div class="modal-overlay hidden" id="chartModal" onclick="if(event.target===this) closeChartModal()">
+  <div class="modal-card modal-card-wide" id="chartModalCard">
+    <div class="modal-actions">
+      <button type="button" class="modal-zoom" id="chartZoomBtn" onclick="toggleChartZoom()">Ampliar</button>
+      <button type="button" class="modal-close" onclick="closeChartModal()">Fechar ✕</button>
+    </div>
+    <h3 class="modal-chart-title" id="chartModalTitle"></h3>
+    <div id="chartModalBody"></div>
   </div>
 </div>
 
@@ -398,12 +471,133 @@ const EXTRA_GID = '0';
 const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutos
 const PIVOT_HEAD_ROW_H = 36; // px — altura fixa de cada linha do cabeçalho da tabela pivô (ver .pivot-th no CSS)
 const EXTRA_HEAD_ROW_H = 40; // px — altura fixa de cada linha do cabeçalho da tabela de Extraorçamentário
+const RFEPCT_HEAD_ROW_H = 38; // px — altura fixa de cada linha do cabeçalho da tabela de Indicadores
 // Origens de recurso válidas, na ordem da validação da planilha — usado na tela de Totais
 // para mostrar toda Origem possível (mesmo sem nenhuma despesa lançada ainda).
 const ORIGENS_VALIDAS = ['LOA', 'PAC', 'RP2', 'RP6', 'RP7', 'RTC'];
 
+/* ================= Dados estáticos: Matrícula 2024 (para comparação de pares) ================= */
+// Fonte: planilha "Dados_PNP_IFPB.xlsx", aba Matrículas, coluna 2024 — mesma base de referência
+// usada para os indicadores (RAP/IEA/Técnico/Formação/EJA) já existentes no painel.
+// "Avançado JP Mangabeira" — nome antigo de "João Pessoa ZS" na planilha de matrículas; unificado abaixo.
+const MATRICULA_2024 = {
+  'Areia': 536, 'Soledade': 366, 'Cabedelo': 3753, 'Cabedelo Centro': 1101,
+  'Cajazeiras': 2539, 'Campina Grande': 4115, 'Catolé do Rocha': 651, 'Esperança': 497,
+  'Guarabira': 1123, 'Itabaiana': 443, 'Itaporanga': 454, 'João Pessoa': 9844,
+  'João Pessoa ZS': 459, // planilha ainda usa o nome antigo "Avançado JP Mangabeira" — mesma unidade
+  'Monteiro': 1092, 'Patos': 1551, 'Pedras de Fogo': 359, 'Picuí': 1315,
+  'Princesa Isabel': 888, 'Santa Luzia': 322, 'Santa Rita': 729, 'Sousa': 1727,
+};
+
+// Orçamento recebido para execução em 2026 (resultado da Matriz de Distribuição sobre os
+// dados de 2024) — fonte: valores informados diretamente pelo usuário.
+const ORCAMENTO_2026 = {
+  'Areia': 733819.07, 'João Pessoa ZS': 172481.51, 'Soledade': 149669.12,
+  'Cabedelo': 4366979.32, 'Cabedelo Centro': 674740.44, 'Cajazeiras': 4915392.37,
+  'Campina Grande': 9564475.08, 'Catolé do Rocha': 1666960.91, 'Esperança': 1144907.16,
+  'Guarabira': 1349873.47, 'Itabaiana': 1308494.17, 'Itaporanga': 1375973.27,
+  'João Pessoa': 14989661.89, 'Monteiro': 2173003.62, 'Patos': 3595759.31,
+  'Pedras de Fogo': 733819.07, 'Picuí': 2743913.10, 'Princesa Isabel': 1706892.16,
+  'Santa Luzia': 636264.85, 'Santa Rita': 1108363.19, 'Sousa': 5005920.90,
+};
+
 let EXTRA_ORC_DATA = [];
 let extraLastError = null;
+
+/* ================= Dados estáticos: Simulador Bloco Qualidade e Eficiência ================= */
+// Fonte: planilha "5ª Fase - MATRIZ CONIF 2026.xlsx", aba INDICADORES (indicadores brutos de 2024,
+// já filtrando cursos regulares/sem FIC, mesma base do IEA=41,45% do IFPB) e aba DADOS BASE
+// (OT, AE e IEA Rede). Todas as 41 instituições da Rede Federal.
+const MATRIZ_OT = 2803219878.73;   // Orçamento Total da rede (Valor referência SPO − Ajuste)
+const MATRIZ_AE = 569717136.00;    // Assistência Estudantil
+const MATRIZ_IEA_REDE = 0.461;     // IEA médio da rede (referência das faixas da Tabela 1)
+// Percentuais de (OT-AE) destinados a cada indicador do Bloco QE (Art. 4 c/c planilha DADOS BASE) —
+// somam os 10% do Bloco Qualidade e Eficiência (Art. 3º, §3º).
+const MATRIZ_PCT_IEA = 0.025;
+const MATRIZ_PCT_RAP = 0.025;
+const MATRIZ_PCT_IAML = 0.05;
+
+const NETWORK_INDICADORES = [
+  {sigla:"IFAC", nome:"INSTITUTO FEDERAL DO ACRE", iea:0.4157223796034, rap:19.84173573573574, ct:0.5898421647154, fp:0.19950860526821, eja:0.0076155927723659},
+  {sigla:"IFAL", nome:"INSTITUTO FEDERAL DE ALAGOAS", iea:0.54592452179907, rap:18.98394300952999, ct:0.68174140725577, fp:0.070721816092586, eja:0.03177678900447},
+  {sigla:"IFAM", nome:"INSTITUTO FEDERAL DO AMAZONAS", iea:0.56943150046598, rap:22.14320210876168, ct:0.71785250703045, fp:0.056955163774271, eja:0.043968219663873},
+  {sigla:"IFAP", nome:"INSTITUTO FEDERAL DO AMAPA", iea:0.4442943956786, rap:22.59485053380783, ct:0.53751784063651, fp:0.16726552153234, eja:0.042464643751598},
+  {sigla:"IFBAIANO", nome:"INSTITUTO FEDERAL BAIANO", iea:0.36894164193867, rap:16.47239420122888, ct:0.76192066290985, fp:0.27728177367843, eja:0.016765108450374},
+  {sigla:"IFBA", nome:"INSTITUTO FEDERAL DA BAHIA", iea:0.36907644413698, rap:17.91030889387145, ct:0.59886047697935, fp:0.10558207913053, eja:0.006319958405741},
+  {sigla:"IFCE", nome:"INSTITUTO FEDERAL DO CEARA", iea:0.3420899007589, rap:25.56442781415653, ct:0.43000837541663, fp:0.22605189868365, eja:0.0041199752693111},
+  {sigla:"IFB", nome:"INSTITUTO FEDERAL DE BRASILIA", iea:0.30374203821656, rap:24.63924095117845, ct:0.52324984230576, fp:0.18543401924118, eja:0.023341727136819},
+  {sigla:"IFES", nome:"INSTITUTO FEDERAL DO ESPIRITO SANTO", iea:0.49053890402664, rap:18.14786620904265, ct:0.44034407708435, fp:0.12064808820905, eja:0.018599502905048},
+  {sigla:"IFG", nome:"INSTITUTO FEDERAL DE GOIAS", iea:0.3604427333975, rap:15.090377627299643, ct:0.38633218494585, fp:0.20664157320138, eja:0.10424971361886},
+  {sigla:"IFGOIANO", nome:"INSTITUTO FEDERAL GOIANO", iea:0.43942133815552, rap:22.45485101982599, ct:0.34637277405501, fp:0.14581919300367, eja:0.001470594284633},
+  {sigla:"IFMA", nome:"INSTITUTO FEDERAL DO MARANHAO", iea:0.51544923821729, rap:21.95727390105434, ct:0.62017409381761, fp:0.14333756520723, eja:0.041080063219014},
+  {sigla:"CEFET-MG", nome:"CENTRO FEDERAL DE EDUCAÇÃO TECNOLÓGICA DE MINAS GERAIS", iea:0.52098997493734, rap:21.47449698741804, ct:0, fp:0, eja:0},
+  {sigla:"IFMG", nome:"INSTITUTO FEDERAL DE MINAS GERAIS", iea:0.46214713430282, rap:20.76492009075908, ct:0.45566377648266, fp:0.10520732255147, eja:0},
+  {sigla:"IFNMG", nome:"INSTITUTO FEDERAL DO NORTE DE MINAS GERAIS", iea:0.43138111888112, rap:21.62318570626904, ct:0.55979618435226, fp:0.11519672394955, eja:0.014760397251079},
+  {sigla:"IFSUDESTE-MG", nome:"INSTITUTO FEDERAL DO SUDESTE DE MINAS GERAIS", iea:0.49375780274657, rap:21.83194069631851, ct:0.53479699952137, fp:0.11258791282082, eja:0.007620200921172},
+  {sigla:"IFSULDEMINAS", nome:"INSTITUTO FEDERAL DO SUL MINAS GERAIS", iea:0.59036488027366, rap:21.56674915540541, ct:0.53284549789887, fp:0.17332056911215, eja:0.016897551702807},
+  {sigla:"IFTM", nome:"INSTITUTO FEDERAL DO TRIANGULO MINEIRO", iea:0.51119005328597, rap:17.85305159079785, ct:0.51746593308054, fp:0.062926914273163, eja:0.0030549953621431},
+  {sigla:"IFMS", nome:"INSTITUTO FEDERAL DE MATO GROSSO DO SUL", iea:0.43185595567867, rap:21.77264129554656, ct:0.4928674485031, fp:0.13140262626853, eja:0.029306680704628},
+  {sigla:"IFMT", nome:"INSTITUTO FEDERAL DE MATO GROSSO", iea:0.48291262135922, rap:21.61846696696696, ct:0.49934980801285, fp:0.10016634387632, eja:0.0041008995390959},
+  {sigla:"IFPA", nome:"INSTITUTO FEDERAL DO PARÁ", iea:0.46618758061544, rap:17.80922764227643, ct:0.61085750497023, fp:0.16350733176316, eja:0.019264195257108},
+  {sigla:"IFPB", nome:"INSTITUTO FEDERAL DA PARAIBA", iea:0.41448476496708, rap:23.73529765675764, ct:0.50905189526531, fp:0.14291385936033, eja:0.013116466292092},
+  {sigla:"IFPE", nome:"INSTITUTO FEDERAL DE PERNAMBUCO", iea:0.33317206902113, rap:22.19323014189412, ct:0.64401955575319, fp:0.058234471978676, eja:0.010096890138503},
+  {sigla:"IFSERTAO-PE", nome:"INSTITUTO FEDERAL DO SERTAO PERNAMBUCANO", iea:0.37931034482759, rap:20.84187756625606, ct:0.50084088018511, fp:0.22887456136318, eja:0.045686227187055},
+  {sigla:"IFPI", nome:"INSTITUTO FEDERAL DO PIAUI", iea:0.47720564119383, rap:20.42040402292219, ct:0.5691004442404, fp:0.14302820588842, eja:0.034409324414809},
+  {sigla:"IFPR", nome:"INSTITUTO FEDERAL DO PARANA", iea:0.43318584070796, rap:17.89726745848455, ct:0.5674455752667, fp:0.13249576632079, eja:0.0016368016914833},
+  {sigla:"CEFET-RJ", nome:"CENTRO FEDERAL DE EDUCAÇÃO TECNOLÓGICA CELSO SUCKOW DA FONSECA", iea:0.34716459197787, rap:22.44324601792739, ct:0, fp:0, eja:0},
+  {sigla:"CPII", nome:"COLEGIO PEDRO II", iea:0.76355171267044, rap:15.44549106054449, ct:0, fp:0, eja:0},
+  {sigla:"IFRJ", nome:"INSTITUTO FEDERAL DO RIO DE JANEIRO", iea:0.53143207605029, rap:18.12267225407443, ct:0.4923476272247, fp:0.18972457055356, eja:0.063090595057943},
+  {sigla:"IFF", nome:"INSTITUTO FEDERAL FLUMINENSE", iea:0.40443963183541, rap:20.69665375626514, ct:0.57257207235425, fp:0.15507159304248, eja:0.025928868235772},
+  {sigla:"IFRN", nome:"INSTITUTO FEDERAL DO RIO GRANDE DO NORTE", iea:0.44786408962206, rap:22.54742301119837, ct:0.63557438903114, fp:0.14834841989311, eja:0.01118944016661},
+  {sigla:"IFRO", nome:"INSTITUTO FEDERAL DE RONDONIA", iea:0.51743159752868, rap:18.08688704806817, ct:0.44637411352358, fp:0.11881104335341, eja:0.0056035682893939},
+  {sigla:"IFRR", nome:"INSTITUTO FEDERAL DE RORAIMA", iea:0.60954174513497, rap:15.19500727404982, ct:0.4064803056923, fp:0.14478925670152, eja:0.025692765320855},
+  {sigla:"IFRS", nome:"INSTITUTO FEDERAL DO RIO GRANDE DO SUL", iea:0.4669387755102, rap:21.077618821920392, ct:0.18824833830612, fp:0.051994720727577, eja:0.013265708123698},
+  {sigla:"IFFARROUPILHA", nome:"INSTITUTO FEDERAL FARROUPILHA", iea:0.41371107266436, rap:16.94521928471763, ct:0.43686618933526, fp:0.18670599543099, eja:0.049779211010197},
+  {sigla:"IFSUL", nome:"INSTITUTO FEDERAL SUL-RIO-GRANDENSE", iea:0.44407308377897, rap:18.03215066469719, ct:0.40949757970846, fp:0.14396355231463, eja:0.02684926990847},
+  {sigla:"IFC", nome:"INSTITUTO FEDERAL CATARINENSE", iea:0.44243132670953, rap:18.44796348348348, ct:0.49592378361558, fp:0.12196376581082, eja:0.042020736426612},
+  {sigla:"IFSC", nome:"INSTITUTO FEDERAL DE SANTA CATARINA", iea:0.36081822016027, rap:24.1601554212823, ct:0.52219374963872, fp:0.093908433601322, eja:0.034883869960303},
+  {sigla:"IFS", nome:"INSTITUTO FEDERAL DE SERGIPE", iea:0.39037062694839, rap:23.15955336111111, ct:0.64961352893122, fp:0.07626606804963, eja:0.0036325487540061},
+  {sigla:"IFSP", nome:"INSTITUTO FEDERAL DE SAO PAULO", iea:0.44277634243419, rap:20.72151599084717, ct:0.4553354873699, fp:0.18409548987826, eja:0.015220782121653},
+  {sigla:"IFTO", nome:"INSTITUTO FEDERAL DE TOCANTINS", iea:0.52471209213052, rap:22.14154052540913, ct:0.38466039897166, fp:0.16556926035146, eja:0.013257804250408},
+];
+
+/* ================= Dados estáticos: Simulador Bloco Funcionamento ================= */
+// Fonte: planilha "5ª Fase - MATRIZ CONIF 2026.xlsx", recalculada (as fórmulas originais não
+// vinham com valor em cache — precisei recalcular com o LibreOffice para obter os números reais).
+// "custeio" é o valor OFICIAL de 2026 por campus (aba RESUMO PROPOSTA, coluna "Matriz Custeio"),
+// já confirmado contra os valores informados (Areia = R$ 733.819,07 bate exatamente).
+// "mt" é a Matrícula Total equalizada (aba COMPLETO PROPOSTA). "ano" é o ano de criação do campus —
+// usado para saber se o piso de R$ 700.000 (Art. 8º) se aplica (só campi criados a partir de 2018).
+// FUNC_F_CALIBRADO foi calibrado a partir dos 19 campi do IFPB que NÃO bateram no piso (variação de
+// ~3,3% entre eles) — não é derivado diretamente de OT/AE porque os valores reais mostram que o
+// Art. 7º/9º (manutenção do valor do ano anterior corrigido pelo IPCA) também influencia o resultado,
+// e essa informação (orçamento do ano anterior por campus) não está disponível.
+const IFPB_FUNC_REAL = {
+  "Areia": {mt:367.9216, custeio:733819.07, ano:2020},
+  "João Pessoa ZS": {mt:143.1674, custeio:172354.58, ano:2016},
+  "Soledade": {mt:122.6441, custeio:149558.95, ano:2016},
+  "Cabedelo": {mt:3642.7136, custeio:4363766.63, ano:2009},
+  "Cabedelo Centro": {mt:645.5344, custeio:674243.88, ano:2015},
+  "Cajazeiras": {mt:4028.8459, custeio:4911776.39, ano:2009},
+  "Campina Grande": {mt:8005.7317, custeio:9557438.61, ano:2009},
+  "Catolé do Rocha": {mt:1365.9663, custeio:1665734.29, ano:2015},
+  "Esperança": {mt:938.1774, custeio:1144065.02, ano:2016},
+  "Guarabira": {mt:1106.1344, custeio:1348880.94, ano:2013},
+  "Itabaiana": {mt:1072.2269, custeio:1307532.28, ano:2016},
+  "Itaporanga": {mt:1127.5209, custeio:1374960.82, ano:2016},
+  "João Pessoa": {mt:12488.9677, custeio:14978636.29, ano:2009},
+  "Monteiro": {mt:1780.6359, custeio:2171405.16, ano:2009},
+  "Patos": {mt:2976.7648, custeio:3593114.57, ano:2009},
+  "Pedras de Fogo": {mt:390.6525, custeio:733819.07, ano:2020},
+  "Picuí": {mt:2370.4473, custeio:2741893.78, ano:2009},
+  "Princesa Isabel": {mt:1399.2875, custeio:1705636.31, ano:2009},
+  "Santa Luzia": {mt:521.3777, custeio:635796.65, ano:2017},
+  "Santa Rita": {mt:908.2319, custeio:1107547.77, ano:2016},
+  "Sousa": {mt:4221.1405, custeio:5002239.14, ano:2009},
+};
+const FUNC_NETWORK_MT_TOTAL = 3023032.894379999;
+const FUNC_FLOOR = 733819.072;
+const FUNC_F_CALIBRADO = 3627867707.52; // calibrado empiricamente (ver nota)
 
 /* ================= Dados estáticos: Indicadores RFEPCT / PNP ================= */
 // Transcrito de uma imagem enviada pelo usuário (valores e cores lidos visualmente) — vale
@@ -1040,7 +1234,7 @@ function closeDetail(){
 }
 
 document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape') closeDetail();
+  if(e.key === 'Escape'){ closeDetail(); closeChartModal(); }
 });
 
 /* ================= Tela 3 · Extraorçamentário ================= */
@@ -1061,7 +1255,7 @@ function renderExtraTable(){
             <th rowspan="2" style="top:0">UNIDADE / VALOR</th>
             <th rowspan="2" class="num th-center" style="top:0">2026 - 2024</th>
             <th rowspan="2" class="num th-center" style="top:0">DIST. EM JANEIRO</th>
-            <th colspan="2" class="th-center proposta-group" style="top:0">PROPOSTA</th>
+            <th colspan="2" class="th-center proposta-group" style="top:0">REFORÇO ORÇAMENTÁRIO</th>
           </tr>
           <tr>
             <th class="num th-center" style="top:${EXTRA_HEAD_ROW_H}px">UNIDADES DE RECOMP.</th>
@@ -1103,7 +1297,7 @@ function rfepctCell(cell){
 function renderIndicadoresTable(){
   const rows = RFEPCT_DATA.map(u => `
     <tr>
-      <td>${u.unidade}</td>
+      <td><span class="desc-link" data-unit="${escapeAttr(u.unidade)}">${u.unidade}</span></td>
       ${rfepctCell(u.rap)}
       ${rfepctCell(u.iea)}
       ${rfepctCell(u.tecnico)}
@@ -1116,15 +1310,15 @@ function renderIndicadoresTable(){
       <table class="rfepct-table">
         <thead>
           <tr>
-            <th rowspan="2">RFEPCT</th>
-            <th colspan="5" class="pnp-group">PNP</th>
+            <th rowspan="2" style="top:0">RFEPCT</th>
+            <th colspan="5" class="pnp-group" style="top:0">PNP</th>
           </tr>
           <tr>
-            <th class="num th-center">RAP</th>
-            <th class="num th-center">IEA</th>
-            <th class="num th-center">Técnico</th>
-            <th class="num th-center">Formação</th>
-            <th class="num th-center">EJA</th>
+            <th class="num th-center" style="top:${RFEPCT_HEAD_ROW_H}px">RAP</th>
+            <th class="num th-center" style="top:${RFEPCT_HEAD_ROW_H}px">IEA</th>
+            <th class="num th-center" style="top:${RFEPCT_HEAD_ROW_H}px">Técnico</th>
+            <th class="num th-center" style="top:${RFEPCT_HEAD_ROW_H}px">Formação</th>
+            <th class="num th-center" style="top:${RFEPCT_HEAD_ROW_H}px">EJA</th>
           </tr>
         </thead>
         <tbody>
@@ -1141,13 +1335,564 @@ function renderIndicadoresTable(){
       </table>
     </div>
     <div class="notes-panel">
-      <p>Percentuais que orientaram a composição orçamentária das unidades, tanto na projeção da PLOA quanto na identificação dos valores das propostas em análise pela Reitoria. A linha "RFEPCT (referência)" é o valor médio/base da rede, usado como comparação para as unidades abaixo.</p>
+      <p>Percentuais que orientaram a composição orçamentária das unidades, tanto na projeção da PLOA quanto na identificação dos valores das propostas em análise pela Reitoria. A linha "RFEPCT (referência)" é o valor médio/base da rede, usado como comparação para as unidades abaixo. Clique no nome de uma unidade para comparar seu perfil de indicadores com a Rede e o IFPB.</p>
     </div>`;
   document.getElementById('contentIndicadores').innerHTML = html;
+  document.getElementById('contentIndicadores').addEventListener('click', (e) => {
+    const link = e.target.closest('.desc-link');
+    if(link) openIndicatorChart(link.dataset.unit);
+  });
+}
+
+/* ---- Gráfico comparativo Rede x IFPB x Campus (SVG, sem dependência externa) ---- */
+const INDICATOR_KEYS = ['rap', 'iea', 'tecnico', 'formacao', 'eja'];
+const INDICATOR_LABELS = ['RAP', 'IEA', 'Técnico', 'Formação', 'EJA'];
+
+function parseIndicatorValue(vStr){
+  if(vStr === undefined || vStr === null) return 0;
+  const n = parseFloat(String(vStr).replace('%','').replace(',','.'));
+  return isNaN(n) ? 0 : n;
+}
+
+function getBaselineSeries(){
+  return INDICATOR_KEYS.map(k => parseIndicatorValue(RFEPCT_BASELINE[k]));
+}
+
+function getUnitSeries(unitRow){
+  return INDICATOR_KEYS.map(k => unitRow[k] ? parseIndicatorValue(unitRow[k].v) : 0);
+}
+
+function buildIndicatorChartSVG(campusNome){
+  const ifpb = RFEPCT_DATA.find(u => u.unidade === 'IFPB');
+  const isIfpb = campusNome === 'IFPB';
+  const campus = isIfpb ? null : RFEPCT_DATA.find(u => u.unidade === campusNome);
+
+  const series = [
+    {nome: 'Rede (referência)', valores: getBaselineSeries(), cor: '#8E1774'},
+    {nome: 'IFPB', valores: ifpb ? getUnitSeries(ifpb) : [0,0,0,0,0], cor: '#1E8E5A'},
+  ];
+  if(!isIfpb){
+    series.push({nome: campusNome, valores: campus ? getUnitSeries(campus) : [0,0,0,0,0], cor: '#E88A3A'});
+  }
+
+  const n = INDICATOR_KEYS.length;
+  const W = 460, H = 380, cx = W/2, cy = 200, maxR = 148;
+  const angleFor = i => -Math.PI/2 + i * (2*Math.PI/n);
+  const pointFor = (i, v) => {
+    const r = (Math.max(0, Math.min(100, v)) / 100) * maxR;
+    const a = angleFor(i);
+    return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+  };
+
+  // grade: pentágonos concêntricos + raios
+  const rings = [25,50,75,100].map(level => {
+    const pts = Array.from({length:n}, (_,i) => pointFor(i, level).join(',')).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="#EDE3DC" stroke-width="1"/>`;
+  }).join('');
+  const spokes = Array.from({length:n}, (_,i) => {
+    const [x,y] = pointFor(i, 100);
+    return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#EDE3DC" stroke-width="1"/>`;
+  }).join('');
+
+  // rótulos dos eixos, ancorados conforme o lado do pentágono
+  const axisLabels = INDICATOR_LABELS.map((lbl,i) => {
+    const a = angleFor(i);
+    const lx = cx + (maxR+26) * Math.cos(a);
+    const ly = cy + (maxR+26) * Math.sin(a);
+    const cos = Math.cos(a), sin = Math.sin(a);
+    const anchor = cos > 0.3 ? 'start' : (cos < -0.3 ? 'end' : 'middle');
+    const dy = sin < -0.3 ? -2 : (sin > 0.3 ? 10 : 4);
+    return `<text x="${lx}" y="${ly+dy}" font-size="12" font-weight="600" fill="#2A2130" text-anchor="${anchor}">${lbl}</text>`;
+  }).join('');
+
+  // polígonos de cada série + pontos com valor exato via tooltip (passar o mouse) —
+  // evita rótulos sempre visíveis se sobrepondo quando duas séries têm valores próximos
+  const seriesSVG = series.map((s) => {
+    const pts = s.valores.map((v,i) => pointFor(i,v).join(',')).join(' ');
+    const marks = s.valores.map((v,i) => {
+      const [x,y] = pointFor(i,v);
+      const txt = INDICATOR_KEYS[i]==='rap' ? String(v).replace('.',',') : v.toFixed(1).replace('.',',')+'%';
+      return `<circle cx="${x}" cy="${y}" r="5" fill="${s.cor}" stroke="#fff" stroke-width="1.5" style="cursor:pointer;"><title>${s.nome} — ${INDICATOR_LABELS[i]}: ${txt}</title></circle>`;
+    }).join('');
+    return `<polygon points="${pts}" fill="${s.cor}" fill-opacity="0.1" stroke="${s.cor}" stroke-width="2"/>${marks}`;
+  }).join('');
+
+  const legend = series.map(s => `
+    <span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;">
+      <span style="width:10px;height:10px;border-radius:50%;background:${s.cor};display:inline-block;"></span>
+      <span style="font-size:12px;color:var(--ink);">${s.nome}</span>
+    </span>`).join('');
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" class="indicator-radar-svg" style="max-width:${W}px; display:block; margin:0 auto;">
+      ${rings}
+      ${spokes}
+      ${axisLabels}
+      ${seriesSVG}
+    </svg>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;margin-top:12px;">${legend}</div>
+    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:12px;">Escala de 0 a 100 em todos os eixos. RAP não é percentual — está na mesma escala apenas para comparação visual. Passe o mouse sobre um ponto para ver o valor exato.</p>`;
+}
+
+function openIndicatorChart(unidade){
+  document.getElementById('chartModalTitle').textContent = `Indicadores — ${unidade}`;
+  document.getElementById('chartModalBody').innerHTML = buildIndicatorChartSVG(unidade);
+  document.getElementById('chartModalCard').classList.remove('zoomed');
+  document.getElementById('chartZoomBtn').textContent = 'Ampliar';
+  document.getElementById('chartModal').classList.remove('hidden');
+}
+
+function closeChartModal(){
+  document.getElementById('chartModal').classList.add('hidden');
+}
+
+function toggleChartZoom(){
+  const card = document.getElementById('chartModalCard');
+  const zoomed = card.classList.toggle('zoomed');
+  document.getElementById('chartZoomBtn').textContent = zoomed ? 'Reduzir' : 'Ampliar';
+}
+
+/* ================= Tela 6 · Simulador Bloco Qualidade e Eficiência ================= */
+let simState = null;
+
+function calcQEAll(overridesIFPB){
+  const list = NETWORK_INDICADORES.map(d => d.sigla === 'IFPB' ? {...d, ...overridesIFPB} : d);
+
+  const pesoIea = v => v < 0.9*MATRIZ_IEA_REDE ? 0.5 : v < MATRIZ_IEA_REDE ? 1 : v < 1.10*MATRIZ_IEA_REDE ? 1.5 : v < 1.20*MATRIZ_IEA_REDE ? 2 : 2.5;
+  const pesoRap = v => v < 18 ? 0 : v < 20 ? 1 : v < 22 ? 2 : 2.5;
+  const pesoCt  = v => v < 0.50 ? 0 : v < 0.60 ? 1 : 2;
+  const pesoFp  = v => v < 0.10 ? 0 : v < 0.15 ? 1 : v < 0.20 ? 2 : 2.5;
+  const pesoEja = v => v < 0.025 ? 0 : v < 0.05 ? 1 : v < 0.10 ? 2 : 2.5;
+
+  const withPond = list.map(d => ({
+    ...d,
+    ieaP: d.iea * pesoIea(d.iea),
+    rapP: d.rap * pesoRap(d.rap),
+    ctP:  d.ct  * pesoCt(d.ct),
+    fpP:  d.fp  * pesoFp(d.fp),
+    ejaP: d.eja * pesoEja(d.eja),
+  }));
+
+  const somaIea = withPond.reduce((s,d)=>s+d.ieaP,0);
+  const somaRap = withPond.reduce((s,d)=>s+d.rapP,0);
+  const somaCt  = withPond.reduce((s,d)=>s+d.ctP,0);
+  const somaFp  = withPond.reduce((s,d)=>s+d.fpP,0);
+  const somaEja = withPond.reduce((s,d)=>s+d.ejaP,0);
+
+  const base = MATRIZ_OT - MATRIZ_AE;
+  const VIEA = MATRIZ_PCT_IEA * base;
+  const VRAP = MATRIZ_PCT_RAP * base;
+  const VIAML = MATRIZ_PCT_IAML * base;
+
+  return withPond.map(d => {
+    const ieaEq = d.ieaP/somaIea, rapEq = d.rapP/somaRap;
+    const ctEq = d.ctP/somaCt, fpEq = d.fpP/somaFp, ejaEq = d.ejaP/somaEja;
+    const iamlEq = 0.7*ctEq + 0.2*fpEq + 0.1*ejaEq;
+    const valorIea = ieaEq*VIEA, valorRap = rapEq*VRAP, valorIaml = iamlEq*VIAML;
+    return {...d, ieaEq, rapEq, iamlEq, valorIea, valorRap, valorIaml, valorTotal: valorIea+valorRap+valorIaml};
+  });
+}
+
+function ifpbBase(){ return NETWORK_INDICADORES.find(d => d.sigla === 'IFPB'); }
+
+function buildSimuladorScreen(){
+  const base = ifpbBase();
+  if(!simState) simState = {iea: base.iea, rap: base.rap, ct: base.ct, fp: base.fp, eja: base.eja};
+
+  const outras = NETWORK_INDICADORES.filter(d => d.sigla !== 'IFPB').sort((a,b) => a.sigla.localeCompare(b.sigla));
+  const optsInst = outras.map(d => `<option value="${d.sigla}">${d.sigla} — ${d.nome}</option>`).join('');
+
+  document.getElementById('contentSimulador').innerHTML = `
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>Copiar índices de</label>
+        <select id="simCopiar" onchange="onSimCopiar()">
+          <option value="">— manual —</option>
+          ${optsInst}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>IEA (%)</label>
+        <input type="number" id="simIea" step="0.01" value="${(simState.iea*100).toFixed(2)}" oninput="onSimInputChange()">
+      </div>
+      <div class="filter-field">
+        <label>RAP</label>
+        <input type="number" id="simRap" step="0.01" value="${simState.rap.toFixed(2)}" oninput="onSimInputChange()">
+      </div>
+      <div class="filter-field">
+        <label>Técnico (%)</label>
+        <input type="number" id="simCt" step="0.01" value="${(simState.ct*100).toFixed(2)}" oninput="onSimInputChange()">
+      </div>
+      <div class="filter-field">
+        <label>Formação (%)</label>
+        <input type="number" id="simFp" step="0.01" value="${(simState.fp*100).toFixed(2)}" oninput="onSimInputChange()">
+      </div>
+      <div class="filter-field">
+        <label>EJA (%)</label>
+        <input type="number" id="simEja" step="0.01" value="${(simState.eja*100).toFixed(2)}" oninput="onSimInputChange()">
+      </div>
+      <button class="filter-clear" onclick="onSimReset()">Restaurar atual</button>
+    </div>
+    <div id="simArea"></div>
+    <div class="notes-panel">
+      <p>Cálculo fiel à Portaria MEC nº 243/2026 (Anexo, Bloco Qualidade e Eficiência): bandas de peso por indicador, ponderação, e participação percentual ("Equalizado") na soma da rede inteira (41 instituições). OT = ${fmtBRL(MATRIZ_OT)}, AE = ${fmtBRL(MATRIZ_AE)}, IEA Rede = ${(MATRIZ_IEA_REDE*100).toFixed(1)}%. IEA do IFPB considerado: cursos regulares, sem FIC.</p>
+      <p class="notes-footer">Simula só o Bloco Qualidade e Eficiência (10% do orçamento da rede) — não o Bloco Funcionamento (80%), que depende de dado adicional (matrícula equalizada por curso/ciclo de toda a rede). Mudar os índices do IFPB desloca ligeiramente a participação das outras 40 instituições, já que o total da rede é fixo — o cálculo já reflete isso.</p>
+    </div>`;
+  renderSimuladorResult();
+}
+
+function onSimCopiar(){
+  const sigla = document.getElementById('simCopiar').value;
+  if(!sigla) return;
+  const inst = NETWORK_INDICADORES.find(d => d.sigla === sigla);
+  simState = {iea: inst.iea, rap: inst.rap, ct: inst.ct, fp: inst.fp, eja: inst.eja};
+  document.getElementById('simIea').value = (simState.iea*100).toFixed(2);
+  document.getElementById('simRap').value = simState.rap.toFixed(2);
+  document.getElementById('simCt').value = (simState.ct*100).toFixed(2);
+  document.getElementById('simFp').value = (simState.fp*100).toFixed(2);
+  document.getElementById('simEja').value = (simState.eja*100).toFixed(2);
+  renderSimuladorResult();
+}
+
+function onSimInputChange(){
+  document.getElementById('simCopiar').value = ''; // edição manual desfaz a seleção de "copiar de"
+  simState = {
+    iea: (parseFloat(document.getElementById('simIea').value)||0)/100,
+    rap: parseFloat(document.getElementById('simRap').value)||0,
+    ct:  (parseFloat(document.getElementById('simCt').value)||0)/100,
+    fp:  (parseFloat(document.getElementById('simFp').value)||0)/100,
+    eja: (parseFloat(document.getElementById('simEja').value)||0)/100,
+  };
+  renderSimuladorResult();
+}
+
+function onSimReset(){
+  const base = ifpbBase();
+  simState = {iea: base.iea, rap: base.rap, ct: base.ct, fp: base.fp, eja: base.eja};
+  buildSimuladorScreen();
+}
+
+function renderSimuladorResult(){
+  const atual = calcQEAll({}).find(d => d.sigla === 'IFPB');
+  const simulado = calcQEAll(simState).find(d => d.sigla === 'IFPB');
+  const delta = simulado.valorTotal - atual.valorTotal;
+
+  function linha(label, atualV, simV){
+    const d = simV - atualV;
+    const cls = d > 0.5 ? 'rfepct-green' : (d < -0.5 ? 'rfepct-red' : '');
+    return `<tr><td>${label}</td><td class="num pares-center">${fmtBRLCell(atualV)}</td><td class="num pares-center rfepct-cell ${cls}">${fmtBRLCell(simV)}</td></tr>`;
+  }
+
+  document.getElementById('simArea').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">QE atual do IFPB</div>
+        <div class="kpi-value">${fmtBRL(atual.valorTotal)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">QE simulado</div>
+        <div class="kpi-value">${fmtBRL(simulado.valorTotal)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Diferença</div>
+        <div class="kpi-value" style="color:${delta>=0?'#1E8E5A':'#CC0000'};">${delta>=0?'+':''}${fmtBRL(delta)}</div>
+      </div>
+    </div>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Parcela</th><th class="num th-center">Atual</th><th class="num th-center">Simulado</th></tr>
+        </thead>
+        <tbody>
+          ${linha('IEA (2,5% da base)', atual.valorIea, simulado.valorIea)}
+          ${linha('RAP (2,5% da base)', atual.valorRap, simulado.valorRap)}
+          ${linha('IAML — Técnico/Formação/EJA (5% da base)', atual.valorIaml, simulado.valorIaml)}
+        </tbody>
+        <tfoot>
+          <tr><td>Total QE do IFPB</td><td class="num pares-center">${fmtBRLCell(atual.valorTotal)}</td><td class="num pares-center">${fmtBRLCell(simulado.valorTotal)}</td></tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+/* ================= Tela 7 · Simulador Bloco Funcionamento ================= */
+let simFState = null;
+
+// RAP por campus já existe na tela de Indicadores (RFEPCT_DATA) — reaproveitado aqui.
+function getRapAtual(unidade){
+  const ind = RFEPCT_DATA.find(u => u.unidade === unidade);
+  return (ind && ind.rap) ? parseIndicatorValue(ind.rap.v) : null;
+}
+
+// "atual" usa o valor OFICIAL real (IFPB_FUNC_REAL[unidade].custeio). "simulado" parte do RAP:
+// como RAP = matrículas ÷ professores, mantendo o nº de professores e o mix de cursos fixos, a
+// Matrícula Total escala na mesma proporção do RAP (novoMT = MT_atual × RAP_novo/RAP_atual) —
+// depois recalcula a participação na rede e aplica o piso de R$ 700.000 (Art. 8º) quando cabível.
+function calcFuncionamentoSimulado(unidade, novoRap){
+  const atual = IFPB_FUNC_REAL[unidade];
+  const rapAtual = getRapAtual(unidade);
+  const fator = (rapAtual && rapAtual > 0) ? (novoRap / rapAtual) : 1;
+  const novoMt = atual.mt * fator;
+  const novoTotalRede = FUNC_NETWORK_MT_TOTAL - atual.mt + novoMt;
+  const rawShare = novoTotalRede > 0 ? (novoMt / novoTotalRede) * FUNC_F_CALIBRADO : 0;
+  const valor = atual.ano >= 2018 ? Math.max(FUNC_FLOOR, rawShare) : rawShare;
+  return { rap: novoRap, mt: novoMt, rawShare, valor };
+}
+
+function buildSimuladorFScreen(){
+  const unidades = Object.keys(IFPB_FUNC_REAL).sort((a,b) => a.localeCompare(b,'pt-BR'));
+  if(!simFState) simFState = { ref: unidades[0], rap: getRapAtual(unidades[0]) };
+
+  const opts = unidades.map(u => `<option value="${escapeAttr(u)}" ${u===simFState.ref?'selected':''}>${u}</option>`).join('');
+  const optsCopiar = unidades.filter(u => u !== simFState.ref)
+    .map(u => `<option value="${escapeAttr(u)}">${u} (RAP ${getRapAtual(u)!=null ? String(getRapAtual(u)).replace('.',',') : '—'})</option>`).join('');
+
+  document.getElementById('contentSimuladorF').innerHTML = `
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>Unidade de referência</label>
+        <select id="simFRef" onchange="onSimFRefChange()">${opts}</select>
+      </div>
+      <div class="filter-field">
+        <label>Copiar RAP de</label>
+        <select id="simFCopiar" onchange="onSimFCopiar()">
+          <option value="">— manual —</option>
+          ${optsCopiar}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>RAP</label>
+        <input type="number" id="simFRap" step="0.01" value="${simFState.rap}" oninput="onSimFInputChange()">
+      </div>
+      <button class="filter-clear" onclick="onSimFReset()">Restaurar atual</button>
+    </div>
+    <div id="simFArea"></div>
+    <div class="notes-panel">
+      <p><strong>"Atual" é o valor oficial de 2026</strong> (aba RESUMO PROPOSTA da planilha CONIF, recalculada — confere com o valor já validado de cada campus). <strong>"Simulado" parte do RAP</strong>, não da matrícula direta: como RAP = matrículas ÷ professores, mudar o RAP mantendo o nº de professores e o mix de cursos da unidade implica uma nova Matrícula Total na mesma proporção (RAP dobrou → matrícula equalizada dobra). A partir daí, recalcula a participação na matrícula da rede inteira e aplica o mesmo piso de R$ 700.000 do Art. 8º quando cabível.</p>
+      <p class="notes-footer">Suposições desta estimativa: nº de professores e mix de cursos da unidade não mudam — só o volume de alunos escala. Não reproduz o mecanismo de manutenção do valor do ano anterior corrigido pelo IPCA (Art. 7º/9º). Piso institucional: ${fmtBRL(FUNC_FLOOR)} para campi criados a partir de 2018.</p>
+    </div>`;
+  renderSimuladorFResult();
+}
+
+function onSimFRefChange(){
+  const novoRef = document.getElementById('simFRef').value;
+  simFState = { ref: novoRef, rap: getRapAtual(novoRef) };
+  buildSimuladorFScreen();
+}
+
+function onSimFCopiar(){
+  const sigla = document.getElementById('simFCopiar').value;
+  if(!sigla) return;
+  simFState.rap = getRapAtual(sigla);
+  document.getElementById('simFRap').value = simFState.rap;
+  renderSimuladorFResult();
+}
+
+function onSimFInputChange(){
+  document.getElementById('simFCopiar').value = '';
+  simFState.rap = parseFloat(document.getElementById('simFRap').value) || 0;
+  renderSimuladorFResult();
+}
+
+function onSimFReset(){
+  simFState.rap = getRapAtual(simFState.ref);
+  buildSimuladorFScreen();
+}
+
+function renderSimuladorFResult(){
+  const atualReal = IFPB_FUNC_REAL[simFState.ref];
+  const rapAtual = getRapAtual(simFState.ref);
+  const simulado = calcFuncionamentoSimulado(simFState.ref, simFState.rap);
+  const delta = simulado.valor - atualReal.custeio;
+
+  document.getElementById('simFArea').innerHTML = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Funcionamento atual (oficial) — ${simFState.ref}</div>
+        <div class="kpi-value">${fmtBRL(atualReal.custeio)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Funcionamento simulado (estimativa)</div>
+        <div class="kpi-value">${fmtBRL(simulado.valor)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Diferença</div>
+        <div class="kpi-value" style="color:${delta>=0?'#1E8E5A':'#CC0000'};">${delta>=0?'+':''}${fmtBRL(delta)}</div>
+      </div>
+    </div>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Unidade</th><th class="num th-center">RAP</th><th class="num th-center">Matrícula total equalizada</th><th class="num th-center">Valor Funcionamento</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${simFState.ref} (atual, oficial)</td>
+            <td class="num pares-center">${rapAtual!=null ? String(rapAtual).replace('.',',') : '—'}</td>
+            <td class="num pares-center">${atualReal.mt.toLocaleString('pt-BR')}</td>
+            <td class="num pares-center">${fmtBRLCell(atualReal.custeio)}</td>
+          </tr>
+          <tr>
+            <td>${simFState.ref} (simulado)</td>
+            <td class="num pares-center">${String(simulado.rap).replace('.',',')}</td>
+            <td class="num pares-center">${simulado.mt.toLocaleString('pt-BR')}</td>
+            <td class="num pares-center rfepct-cell ${delta>0.5?'rfepct-green':(delta<-0.5?'rfepct-red':'')}">${fmtBRLCell(simulado.valor)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+
+function buildParesData(){
+  return Object.keys(MATRICULA_2024).map(nome => {
+    const ind = RFEPCT_DATA.find(u => u.unidade === nome);
+    const matricula = MATRICULA_2024[nome];
+    const orcamento = ORCAMENTO_2026[nome] !== undefined ? ORCAMENTO_2026[nome] : null;
+    return {
+      unidade: nome,
+      matricula,
+      orcamento,
+      rPorAluno: orcamento !== null ? orcamento / matricula : null,
+      rap: ind && ind.rap ? parseIndicatorValue(ind.rap.v) : null,
+      iea: ind && ind.iea ? parseIndicatorValue(ind.iea.v) : null,
+      tecnico: ind && ind.tecnico ? parseIndicatorValue(ind.tecnico.v) : null,
+      formacao: ind && ind.formacao ? parseIndicatorValue(ind.formacao.v) : null,
+      eja: ind && ind.eja ? parseIndicatorValue(ind.eja.v) : null,
+    };
+  });
+}
+
+let paresFilters = { ref: '', tolerancia: 25, criterio: 'matricula' };
+
+function paresDeltaCell(peerVal, refVal, isPercent){
+  if(peerVal === null || refVal === null) return `<td class="num pares-center">—</td>`;
+  const diff = peerVal - refVal;
+  const cls = diff > 0.005 ? 'rfepct-green' : (diff < -0.005 ? 'rfepct-red' : '');
+  const valTxt = isPercent ? (peerVal.toFixed(2).replace('.',',')+'%') : String(peerVal).replace('.',',');
+  const diffTxt = (diff >= 0 ? '+' : '') + diff.toFixed(2).replace('.',',') + (isPercent ? 'pp' : '');
+  return `<td class="num pares-center rfepct-cell ${cls}">${valTxt}<br><span style="font-size:10px;opacity:.75;">${diffTxt}</span></td>`;
+}
+
+// Célula neutra (sem verde/vermelho) — usada para Matrícula/Orçamento/R$ por aluno, onde
+// "maior" não é claramente melhor ou pior. `center` controla o alinhamento (Orçamento fica à direita).
+function paresNeutralCell(peerVal, refVal, fmt, center){
+  const cls = center === false ? 'num' : 'num pares-center';
+  if(peerVal === null || refVal === null) return `<td class="${cls}">—</td>`;
+  const diff = peerVal - refVal;
+  const diffTxt = (diff >= 0 ? '+' : '') + fmt(diff);
+  return `<td class="${cls}">${fmt(peerVal)}<br><span style="font-size:10px;color:var(--ink-soft);">${diffTxt}</span></td>`;
+}
+
+const fmtInt = v => Math.round(v).toLocaleString('pt-BR');
+const fmtMoneyShort = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+
+function renderParesTable(){
+  const data = buildParesData();
+  const ref = data.find(u => u.unidade === paresFilters.ref);
+  const area = document.getElementById('paresArea');
+  if(!ref){ area.innerHTML = ''; return; }
+
+  const campo = paresFilters.criterio; // 'matricula' ou 'orcamento'
+  const refVal = ref[campo];
+  const tol = paresFilters.tolerancia / 100;
+  const min = refVal * (1 - tol), max = refVal * (1 + tol);
+  const peers = data
+    .filter(u => u.unidade !== ref.unidade && u[campo] !== null && u[campo] >= min && u[campo] <= max)
+    .sort((a,b) => Math.abs(a[campo] - refVal) - Math.abs(b[campo] - refVal));
+
+  const fmtVal = (v, isPercent) => v === null ? '—' : (isPercent ? v.toFixed(2).replace('.',',')+'%' : String(v).replace('.',','));
+  const star = '<span style="color:#E74C3C;">★</span>';
+  const matriculaTh = campo === 'matricula' ? `Matrícula 2024 ${star}` : 'Matrícula 2024';
+  const orcamentoTh = campo === 'orcamento' ? `Orçamento 2026 ${star}` : 'Orçamento 2026';
+
+  const refRow = `
+    <tr style="background:#E4D6F0; font-weight:600;">
+      <td>${ref.unidade} (referência)</td>
+      <td class="num pares-center">${fmtInt(ref.matricula)}</td>
+      <td class="num">${ref.orcamento !== null ? fmtMoneyShort(ref.orcamento) : '—'}</td>
+      <td class="num pares-center">${ref.rPorAluno !== null ? fmtMoneyShort(ref.rPorAluno) : '—'}</td>
+      <td class="num pares-center">${fmtVal(ref.rap,false)}</td>
+      <td class="num pares-center">${fmtVal(ref.iea,true)}</td>
+      <td class="num pares-center">${fmtVal(ref.tecnico,true)}</td>
+      <td class="num pares-center">${fmtVal(ref.formacao,true)}</td>
+      <td class="num pares-center">${fmtVal(ref.eja,true)}</td>
+    </tr>`;
+
+  const peerRows = peers.map(p => `
+    <tr>
+      <td>${p.unidade}</td>
+      ${paresNeutralCell(p.matricula, ref.matricula, fmtInt)}
+      ${paresNeutralCell(p.orcamento, ref.orcamento, fmtMoneyShort, false)}
+      ${paresNeutralCell(p.rPorAluno, ref.rPorAluno, fmtMoneyShort)}
+      ${paresDeltaCell(p.rap, ref.rap, false)}
+      ${paresDeltaCell(p.iea, ref.iea, true)}
+      ${paresDeltaCell(p.tecnico, ref.tecnico, true)}
+      ${paresDeltaCell(p.formacao, ref.formacao, true)}
+      ${paresDeltaCell(p.eja, ref.eja, true)}
+    </tr>`).join('');
+
+  area.innerHTML = `
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Unidade</th>
+            <th class="num pares-center">${matriculaTh}</th>
+            <th class="num">${orcamentoTh}</th>
+            <th class="num pares-center">R$ / aluno</th>
+            <th class="num pares-center">RAP</th>
+            <th class="num pares-center">IEA</th>
+            <th class="num pares-center">Técnico</th>
+            <th class="num pares-center">Formação</th>
+            <th class="num pares-center">EJA</th>
+          </tr>
+        </thead>
+        <tbody>${refRow}${peerRows || `<tr><td colspan="9" class="muted" style="padding:20px 26px;">Nenhuma unidade dentro da tolerância selecionada.</td></tr>`}</tbody>
+      </table>
+    </div>`;
+}
+
+function onParesFilterChange(){
+  paresFilters.ref = document.getElementById('paresRef').value;
+  paresFilters.tolerancia = parseFloat(document.getElementById('paresTol').value) || 25;
+  paresFilters.criterio = document.getElementById('paresCriterio').value;
+  renderParesTable();
+}
+
+function buildParesScreen(){
+  const data = buildParesData().sort((a,b) => a.unidade.localeCompare(b.unidade,'pt-BR'));
+  if(!paresFilters.ref) paresFilters.ref = data[0].unidade;
+  const opts = data.map(u => `<option value="${escapeAttr(u.unidade)}">${u.unidade}</option>`).join('');
+
+  document.getElementById('contentPares').innerHTML = `
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>Unidade de referência</label>
+        <select id="paresRef" onchange="onParesFilterChange()">${opts}</select>
+      </div>
+      <div class="filter-field">
+        <label>Analisar por</label>
+        <select id="paresCriterio" onchange="onParesFilterChange()">
+          <option value="matricula" ${paresFilters.criterio==='matricula'?'selected':''}>Matrícula</option>
+          <option value="orcamento" ${paresFilters.criterio==='orcamento'?'selected':''}>Orçamento</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Tolerância (%)</label>
+        <input type="number" id="paresTol" value="${paresFilters.tolerancia}" min="5" max="200" step="5" oninput="onParesFilterChange()">
+      </div>
+    </div>
+    <div id="paresArea"></div>
+    <div class="notes-panel">
+      <p>Base 2024 para os indicadores (mesmo ano da PNP que formou o orçamento hoje em execução) e Orçamento 2026 como o valor efetivamente recebido. A coluna marcada com ★ é o critério usado para selecionar os pares. Nas colunas de indicador, verde/vermelho indicam par melhor/pior que a referência; em Matrícula, Orçamento e R$/aluno o delta é só informativo (mais ou menos não é necessariamente melhor).</p>
+    </div>`;
+  document.getElementById('paresRef').value = paresFilters.ref;
+  renderParesTable();
 }
 
 /* ================= Navegação ================= */
-const PAGES = ['totais', 'detalhe', 'extra', 'indicadores'];
+const PAGES = ['totais', 'detalhe', 'extra', 'indicadores', 'pares', 'simulador', 'simuladorF'];
 function switchPage(page){
   PAGES.forEach(p => {
     document.getElementById('page-' + p).style.display = (p === page) ? 'block' : 'none';
@@ -1175,6 +1920,8 @@ refreshData(false);
 refreshExtraData();
 setInterval(() => { refreshData(false); refreshExtraData(); }, AUTO_REFRESH_MS);
 renderIndicadoresTable();
+buildParesScreen();buildSimuladorScreen();
+buildSimuladorFScreen();
 switchPage('totais');
 </script>
 </body>
