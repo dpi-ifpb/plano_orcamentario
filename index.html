@@ -113,7 +113,7 @@
     color:var(--ink-soft); margin:26px 2px 10px;
   }
   .section-label:first-of-type{margin-top:0;}
-  .panel{background:var(--surface); border:none; border-radius:0; overflow-x:auto; max-width:100%;}
+  .panel{background:var(--surface); border:none; border-radius:0; overflow-x:auto; overflow-y:clip; max-width:100%;}
   .panel + .panel{margin-top:14px;}
   .panel-pad{padding:24px 26px;}
 
@@ -202,7 +202,7 @@
   .desc-cell{max-width:260px;}
 
   /* Tabela pivô (Totais) */
-  .pivot-wrap{overflow-x:auto;}
+  .pivot-wrap{overflow-x:auto; overflow-y:clip;}
   .pivot-table{border-collapse:separate; border-spacing:0; font-size:12.5px; white-space:nowrap;}
   .pivot-table th, .pivot-table td{border:none; padding:9px 14px;}
   .pivot-th{text-align:center; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; font-weight:600; color:#EDE6F5; background:var(--c1); position:sticky; z-index:5; height:36px; box-sizing:border-box; vertical-align:middle;}
@@ -1283,7 +1283,6 @@ function renderExtraTable(){
         <dt>TODAS AS UNIDADES (Proposta)</dt>
         <dd>Proposta em análise pela Reitoria, no valor total de R$ 800.000,00, distribuída a todas as unidades (não só as com déficit orçamentário).</dd>
       </dl>
-      <p class="notes-footer">Colunas "DIST. EM MAIO" e "TOTAL" da planilha original não aparecem aqui — esses valores já são identificados nas telas de Despesas (Totais/Detalhamento). Todos os valores das propostas em análise pela Reitoria são baseados nos mesmos índices/parâmetros qualitativos já usados pela matriz orçamentária. Reitoria não incluída nesta tela, a pedido.</p>
     </div>`;
   document.getElementById('contentExtra').innerHTML = html;
 }
